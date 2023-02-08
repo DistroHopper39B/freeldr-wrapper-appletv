@@ -17,10 +17,10 @@
 #define COM1 0x3F8 // <- the COM1 serial address
 extern int vsprintf(char *buf, const char *fmt, va_list args);
 
-extern volatile uint32_t VIDEO_CURSOR_POSY;
-extern volatile uint32_t VIDEO_CURSOR_POSX;
-extern volatile uint32_t VIDEO_ATTR;
-extern volatile CURRENT_VIDEO_MODE_DETAILS vmode;
+volatile uint32_t VIDEO_CURSOR_POSY;
+volatile uint32_t VIDEO_CURSOR_POSX;
+volatile uint32_t VIDEO_ATTR;
+volatile CURRENT_VIDEO_MODE_DETAILS vmode;
 
 const unsigned short waStarts[] = { // starting positions of each ASCII character
  0, 4, 12, 20, 29, 42, 53, 56, // <-- (

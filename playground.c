@@ -10,11 +10,11 @@ atv-playground. Based on atv-bootloader.
 extern int sprintf(char *buf, const char *fmt, ...);
 extern int printk(const char *szFormat, ...);
 
-volatile uint32_t VIDEO_CURSOR_POSY;
-volatile uint32_t VIDEO_CURSOR_POSX;
-volatile uint32_t VIDEO_ATTR;
+extern volatile uint32_t VIDEO_CURSOR_POSY;
+extern volatile uint32_t VIDEO_CURSOR_POSX;
+extern volatile uint32_t VIDEO_ATTR;
+extern volatile CURRENT_VIDEO_MODE_DETAILS vmode;
 
-volatile CURRENT_VIDEO_MODE_DETAILS vmode;
 mach_boot_parms *mach_bp;
 
 void playground_start(unsigned int args) {
@@ -30,6 +30,7 @@ void playground_start(unsigned int args) {
 	VIDEO_CURSOR_POSY = 0;
 	VIDEO_ATTR = 0xffc8c8c8;
 
+	printk("DATA OK\n");
 	printk("Hello, World!\n");
 
 	while (1);

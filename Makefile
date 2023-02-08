@@ -3,16 +3,19 @@
 
 CC := i386-apple-darwin8-clang
 LD := i386-apple-darwin8-ld
+OBJCOPY := i686-linux-gnu-objcopy
+MACHO := mach_kernel
 
 # Linking order
 OUT = start.o vsprintf.o console.o utils.o mach-o.o playground.o
 
+all: mach_kernel
+
 mach_kernel: $(OUT)
-	$(LD) -o mach_kernel $(OUT) -static -e __start
+	$(LD) $(LDFLAGS) -o $(MACHO) $(OUT) -static
 %.o: %.c
-	$(CC) -c -static -nostdlib -fno-stack-protector -o  $@ -c $<
+	$(CC) -c -static -nostdlib -fno-stack-protector -o $@ -c $<
 %.o: %.S
 	$(CC) -c -static -nostdlib -DASSEMBLER -o $@ -c $<
-
 clean:
-	rm -f *.o mach_kernel
+	rm -f *.o mach_kernel*

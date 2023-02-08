@@ -1,4 +1,4 @@
 *.o
 .vscode
 rebuild
-mach_kernel
+mach_kernel*
