@@ -2,4 +2,4 @@
 .vscode
 rebuild
 mach_kernel*
-custombuild.sh
+custombuild
