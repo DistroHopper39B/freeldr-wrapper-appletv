@@ -1,4 +1,4 @@
-#include "utils.h"
+#include <atvutils.h>
 
 /*
  * time.c:
@@ -8,7 +8,7 @@
  * All rights reserved. Written by James McKenzie <macmini@madingley.org>.
  *
  */
-#include		"types.h"
+#include		<stdint.h>
 
 /**********************************************************************/
 void

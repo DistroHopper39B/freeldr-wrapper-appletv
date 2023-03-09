@@ -1,5 +1,6 @@
-#include	"utils.h"
-#include	"mach-o.h"
+#include <atvutils.h>
+#include <atvlib.h>
+#include <atvmach.h>
 
 extern int printk(const char *szFormat, ...);
 

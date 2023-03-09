@@ -11,8 +11,9 @@
 // includes an antialiased (4bpp) proportional bitmap font (n x 16 pixel)
 
 #include <stdarg.h>
-#include "types.h"
-#include "mach-o.h"
+#include <atvint.h>
+#include <atvlib.h>
+#include <atvmach.h>
 
 #define COM1 0x3F8 // <- the COM1 serial address
 extern int vsprintf(char *buf, const char *fmt, va_list args);

@@ -18,7 +18,7 @@ start:
 		# terrible serial code, but i dont want to use .data
 		# this code sends "ATV: OK" to the serial port, so that i know that the program has gotten to this point
 		movb $'\n', %al
-		movw $0x3f8, %dx
+		movw $0x3f8, %dx # serial port
 		outb %al, %dx
 		movb $'T', %al
 		outb %al, %dx

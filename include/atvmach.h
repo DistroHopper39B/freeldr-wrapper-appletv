@@ -1,7 +1,7 @@
-#ifndef _DARWIN_CODE_H_
-#define _DARWIN_CODE_H_
+#ifndef _ATVMACH_H_
+#define _ATVMACH_H_
 
-#include "types.h"
+#include <atvint.h>
 
 #define DARWIN_IMAGE_BASE	0x002000000
 // xnu pexpert/pexpert/i386/boot.h

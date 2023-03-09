@@ -1,7 +1,7 @@
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef _ATVUTILS_H_
+#define _ATVUTILS_H_
 
-#include	"types.h"
+#include <atvint.h>
 
 void	msleep(int s);
 void	sleep(int s);
