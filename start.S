@@ -37,6 +37,7 @@ start:
 		movb $'\n', %al
 		outb %al, %dx
 		
-		# start program and halt the CPU in event of a failure
+		# start program
 		call _playground_start
+		# halt the cpu
 		hlt

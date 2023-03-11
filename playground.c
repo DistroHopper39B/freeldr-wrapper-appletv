@@ -2,14 +2,11 @@
 atv-playground. Based on atv-bootloader.
 */
 
-#include <stdint.h>
-#include <atvutils.h>
-#include <atvmach.h>
 #include <atvlib.h>
 
 mach_boot_parms *mach_bp;
 
-void playground_start(unsigned int args) {
+__attribute__((unused)) void playground_start(unsigned int args) { // called by start symbol in the executable
 
 	mach_bp = (mach_boot_parms *) args;
 
@@ -36,5 +33,5 @@ void playground_start(unsigned int args) {
 	printk("devtree size: 0x%d\n", mach_bp->devtree_len);
 	printk("devtree ptr: 0x%d\n", mach_bp->devtree_ptr);
 
-	while (1);
+    while (1);
 }

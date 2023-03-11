@@ -1,8 +1,5 @@
 #include <atvutils.h>
 #include <atvlib.h>
-#include <atvmach.h>
-
-extern int printk(const char *szFormat, ...);
 
 // darwin/src/modules/cctools/libmacho/getsecbyname.c
 /**********************************************************************/

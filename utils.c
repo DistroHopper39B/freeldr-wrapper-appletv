@@ -8,7 +8,6 @@
  * All rights reserved. Written by James McKenzie <macmini@madingley.org>.
  *
  */
-#include		<stdint.h>
 
 /**********************************************************************/
 void

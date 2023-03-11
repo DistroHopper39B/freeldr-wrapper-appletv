@@ -1,5 +1,10 @@
 *.o
 .vscode
+.idea
 rebuild
 mach_kernel*
 custombuild
+.cproject
+.project
+cmake*
+build
