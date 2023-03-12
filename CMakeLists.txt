@@ -15,6 +15,7 @@ if(UNIX)
 endif(UNIX)
 
 if(APPLE)
+    set(CMAKE_C_LINK_EXECUTABLE "ld -static -o <TARGET> <OBJECTS>")
     set(CMAKE_C_FLAGS "-static -nostdlib -arch i386 -fno-stack-protector -O0")
     set(CMAKE_ASM_FLAGS "-static -nostdlib -arch i386 -DASSEMBLER")
 endif(APPLE)
