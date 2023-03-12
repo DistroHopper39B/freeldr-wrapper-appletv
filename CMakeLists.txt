@@ -5,8 +5,9 @@ set(CMAKE_SYSTEM_NAME macOS)
 set(CMAKE_SYSTEM_PROCESSOR i386)
 
 set(CMAKE_C_STANDARD 17)
-set(CMAKE_C_COMPILER clang)
+
 if(UNIX)
+    set(CMAKE_C_COMPILER clang)
     set(CMAKE_C_COMPILER_TARGET i386-apple-darwin8)
     set(CMAKE_C_LINK_EXECUTABLE "/opt/osxcross/bin/i386-apple-darwin8-ld -static -o <TARGET> <OBJECTS>")
     set(CMAKE_C_FLAGS "-static -nostdlib -arch i386 -fno-stack-protector -O0 -isysroot /opt/osxcross/SDK/MacOSX10.4u.sdk")
