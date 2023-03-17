@@ -440,23 +440,24 @@ const unsigned char baCharset[] = {
 
 // returns number of x pixels taken up by ascii character bCharacter
 unsigned int BootVideoGetCharacterWidth(u8 bCharacter, bool fDouble) {
-	unsigned int nStart, nWidth;
-	int          nSpace = WIDTH_SPACE_PIXELS;
+    unsigned int nStart, nWidth;
+    int nSpace = WIDTH_SPACE_PIXELS;
 
-	if (fDouble) nSpace = 8;
+    if (fDouble) nSpace = 8;
 
-		// we only have glyphs for 0x21 through 0x7e inclusive (exclamation mark -> tilde)
+    // we only have glyphs for 0x21 through 0x7e inclusive (exclamation mark -> tilde)
 
-	if (bCharacter<0x21) return nSpace;
-	if (bCharacter>0x7e) return nSpace;
+    if (bCharacter < 0x21) return nSpace;
+    if (bCharacter > 0x7e) return nSpace;
 
-	nStart = waStarts[bCharacter-0x21];
-	nWidth = waStarts[bCharacter-0x20]-nStart;
+    nStart = waStarts[bCharacter - 0x21];
+    nWidth = waStarts[bCharacter - 0x20] - nStart;
 
-	if (fDouble)
-    return nWidth<<1;
-  else
-    return nWidth;
+    if (fDouble) {
+        return nWidth << 1;
+    } else {
+        return nWidth;
+    }
 }
 
 // returns number of x pixels taken up by string

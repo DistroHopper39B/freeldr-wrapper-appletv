@@ -21,7 +21,7 @@ __attribute__((unused)) void playground_start(unsigned int args) { // called by 
 	VIDEO_ATTR = 0xffc8c8c8;
 
 	printk("DATA OK, first stage initialization complete!\n");
-	printk("Helloooooo, World!\n");
+	printk("Hell, World!\n");
 
 	// print information
 	printk("Firmware version: %d.%d\n", mach_bp->ver, mach_bp->rev);

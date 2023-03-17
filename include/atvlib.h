@@ -4,7 +4,6 @@
 #include "atvint.h"
 #include "atvmach.h"
 #include "atvutils.h"
-#include "atvint.h"
 
 extern int sprintf(char *buf, const char *fmt, ...);
 extern int printk(const char *szFormat, ...);
