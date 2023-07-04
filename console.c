@@ -552,6 +552,7 @@ void BootVideoChunkedPrint(const char *szBuffer) {
 				(u32 *)((mach_bp->video.addr) + VIDEO_CURSOR_POSY * (vmode.width*4) + VIDEO_CURSOR_POSX),
 				vmode.width*4, VIDEO_ATTR, &szBuffer[nDone]
 			);
+            nDone = n + 1;
 			VIDEO_CURSOR_POSY += 16;
 			VIDEO_CURSOR_POSX = vmode.xmargin << 2;
 		}
