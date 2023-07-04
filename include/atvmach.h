@@ -52,7 +52,7 @@ typedef struct _mach_boot_parms {
 //
 extern mach_boot_parms *mach_bp;
 
-typedef unsigned long RGBA;
+typedef unsigned long BGRA;
 
 typedef struct {
     uint32_t width; // everything else filled by BootVgaInitializationKernel() on return

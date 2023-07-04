@@ -441,10 +441,10 @@ const unsigned char baCharset[] = {
 // convert pixel count to size of memory in bytes required to hold it, given the character height
 // usable for direct write or for prebuffered write
 // returns width of character in pixels
-// RGBA .. full-on RED is opaque --> 0xFF0000FF <-- red
+// colors on the Apple TV are in BGRA, not RGBA
 int BootVideoOverlayCharacter(u32  *pdwaTopLeftDestination,
 	                            u32  m_dwCountBytesPerLineDestination,
-	                            RGBA rgbaColourAndOpaqueness,
+	                            BGRA bgraColourAndOpaqueness,
 	                            u8   bCharacter,
 	                            bool fDouble) {
 	int          nSpace;
@@ -452,7 +452,7 @@ int BootVideoOverlayCharacter(u32  *pdwaTopLeftDestination,
 //		nOpaquenessMultiplied,
 //		nTransparentnessMultiplied
 
-	u8 b = 0, b1; // *pbColour=(u8 *)&rgbaColourAndOpaqueness;
+	u8 b = 0, b1; // *pbColour=(u8 *)&bgraColourAndOpaqueness;
 	u8 *pbaDestStart;
 
 		// we only have glyphs for 0x21 through 0x7e inclusive
@@ -496,11 +496,11 @@ int BootVideoOverlayCharacter(u32  *pdwaTopLeftDestination,
 			}
         // color stuff??
 		if (b1) {
-				*pbaDest = (u8)((b1*(rgbaColourAndOpaqueness&0x00))>>4); // blue
+				*pbaDest = (u8)((b1*(bgraColourAndOpaqueness&0x00))>>4); // blue
                 pbaDest++;
-				*pbaDest = (u8)((b1*((rgbaColourAndOpaqueness>>8)&0x00))>>4); // green
+				*pbaDest = (u8)((b1*((bgraColourAndOpaqueness>>8)&0x00))>>4); // green
                 pbaDest++;
-                *pbaDest = (u8)((b1*((rgbaColourAndOpaqueness>>16)&0xFF))>>4); // red
+                *pbaDest = (u8)((b1*((bgraColourAndOpaqueness>>16)&0xFF))>>4); // red
                 pbaDest++;
 				*pbaDest++ = 0x00; // alpha
 			} else {
@@ -522,7 +522,7 @@ int BootVideoOverlayCharacter(u32  *pdwaTopLeftDestination,
 // returns width of string in pixels
 int BootVideoOverlayString(u32 *pdwaTopLeftDestination,
                            u32 m_dwCountBytesPerLineDestination,
-                           RGBA rgbaOpaqueness,
+                           BGRA bgraOpaqueness,
                            const char *szString) {
 	unsigned int uiWidth = 0;
 	bool         fDouble=0;
@@ -533,7 +533,7 @@ int BootVideoOverlayString(u32 *pdwaTopLeftDestination,
 		} else {
 			uiWidth += BootVideoOverlayCharacter(pdwaTopLeftDestination+uiWidth,
                                            m_dwCountBytesPerLineDestination,
-                                           rgbaOpaqueness,
+                                           bgraOpaqueness,
                                            *szString,
                                            fDouble);
 		}
