@@ -13,6 +13,4 @@ extern volatile uint32_t VIDEO_CURSOR_POSX;
 extern volatile uint32_t VIDEO_ATTR;
 extern volatile CURRENT_VIDEO_MODE_DETAILS vmode;
 
-#define BOOT_PARAM_MEMSIZE  0x00004000
-
 #endif

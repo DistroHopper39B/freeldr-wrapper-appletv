@@ -9,6 +9,7 @@
 #define VGA_TEXT_MODE 0
 #define GRAPHICS_MODE 1
 #define FB_TEXT_MODE  2
+#define CMDLINE	1024
 //
 typedef struct _Boot_Video {
 	uint32_t v_baseAddr;	// Base address of video memory
@@ -50,6 +51,14 @@ typedef struct _mach_boot_parms {
 } __attribute__((aligned(4))) mach_boot_parms;
 //
 extern mach_boot_parms *mach_bp;
+
+typedef unsigned long RGBA;
+
+typedef struct {
+    uint32_t width; // everything else filled by BootVgaInitializationKernel() on return
+    uint32_t height;
+    uint32_t xmargin;
+} CURRENT_VIDEO_MODE_DETAILS;
 
 //
 
