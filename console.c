@@ -33,7 +33,8 @@ const unsigned short waStarts[] = {
         550, 559, 568, 576, 585, 594, 600, 608, // <-- h
         618, 621, 626, 635, 639, 652, 662, 671, // <-- p
         680, 690, 696, 704, 709, 718, 727, 738, // <-- x
-        747, 756, 763, 769, 774, 779, 788 // <-- end of bitmap
+        747, 756, 763, 769, 774, 779, 788
+        // <-- end of bitmap
 };
 
 const unsigned int uiPixelsX = 789, uiPixelsY = 16;
@@ -441,16 +442,12 @@ const unsigned char baCharset[] = {
 // convert pixel count to size of memory in bytes required to hold it, given the character height
 // usable for direct write or for prebuffered write
 // returns width of character in pixels
-// colors on the Apple TV are in BGRA, not RGBA
-int BootVideoOverlayCharacter(u32  *pdwaTopLeftDestination,
-	                            u32  m_dwCountBytesPerLineDestination,
-	                            BGRA bgraColourAndOpaqueness,
-	                            u8   bCharacter,
-	                            bool fDouble) {
-	int          nSpace;
+// colors on the Apple TV are in BGRA, alpha seems to be controlled differently than this code does it.
+int BootVideoOverlayCharacter(u32 *pdwaTopLeftDestination, u32 m_dwCountBytesPerLineDestination, BGRA bgraColourAndOpaqueness, u8 bCharacter, bool fDouble) {
+	int nSpace;
 	unsigned int n, nStart, nWidth, y, nHeight;
-//		nOpaquenessMultiplied,
-//		nTransparentnessMultiplied
+    //	nOpaquenessMultiplied,
+    //	nTransparentnessMultiplied
 
 	u8 b = 0, b1; // *pbColour=(u8 *)&bgraColourAndOpaqueness;
 	u8 *pbaDestStart;
@@ -462,25 +459,28 @@ int BootVideoOverlayCharacter(u32  *pdwaTopLeftDestination,
 		u32 dw1 = ((dw+1)%(32<<2));  // distance from previous boundary
 		return ((32<<2)-dw1)>>2;
 	}
+    if (bCharacter == '\n') {
+        VIDEO_CURSOR_POSY += uiPixelsY;
+    }
 	nSpace = WIDTH_SPACE_PIXELS;
 	if (fDouble) nSpace = 8;
 	if (bCharacter < '!') return nSpace;
 	if (bCharacter > '~') return nSpace;
 
-	nStart = waStarts[bCharacter-(' '+1)];
+	nStart = waStarts[bCharacter-('!')];
 	nWidth = waStarts[bCharacter-' ']-nStart;
 	nHeight = uiPixelsY;
 
 	if (fDouble) { nWidth <<= 1; nHeight <<= 1; }
 
-//	nStart=0;
-//	nWidth=300;
+    //nStart=0;
+    //qnWidth=300;
 
 	pbaDestStart = ((u8 *) pdwaTopLeftDestination);
 
 	for (y=0; y<nHeight; y++) {
 		u8  *pbaDest = pbaDestStart;
-		int n1 = nStart;
+		unsigned int n1 = nStart;
 
 		for (n = 0; n < nWidth; n++) {
 			b = baCharset[n1>>1];
@@ -494,15 +494,15 @@ int BootVideoOverlayCharacter(u32  *pdwaTopLeftDestination,
 			} else {
 				n1++;
 			}
-        // color stuff??
+        // color stuff
 		if (b1) {
-				*pbaDest = (u8)((b1*(bgraColourAndOpaqueness&0x00))>>4); // blue
+				*pbaDest = (u8)((b1*(bgraColourAndOpaqueness&0xFF))>>4); // blue
                 pbaDest++;
-				*pbaDest = (u8)((b1*((bgraColourAndOpaqueness>>8)&0x00))>>4); // green
+				*pbaDest = (u8)((b1*((bgraColourAndOpaqueness>>8)&0xFF))>>4); // green
                 pbaDest++;
                 *pbaDest = (u8)((b1*((bgraColourAndOpaqueness>>16)&0xFF))>>4); // red
                 pbaDest++;
-				*pbaDest++ = 0x00; // alpha
+				*pbaDest++ = 0x69; // alpha (seems to break antialiasing if missing but the value doesn't matter, seems changing the shift operators controls alpha?)
 			} else {
 				pbaDest += 4;
 			}
@@ -558,16 +558,7 @@ void BootVideoChunkedPrint(const char *szBuffer) {
 		}
 		n++;
 	}
-	if (n != nDone) {
-		VIDEO_CURSOR_POSX += BootVideoOverlayString(
-			(u32 *) ((mach_bp->video.addr) + VIDEO_CURSOR_POSY * (vmode.width*4) + VIDEO_CURSOR_POSX),
-			vmode.width*4, VIDEO_ATTR, &szBuffer[nDone]
-		) << 2;
-		if (VIDEO_CURSOR_POSX > (vmode.width - vmode.xmargin) << 2) {
-			VIDEO_CURSOR_POSY += 16;
-			VIDEO_CURSOR_POSX = vmode.xmargin << 2;
-		}
-	}
+
 }
 
 // Serial code

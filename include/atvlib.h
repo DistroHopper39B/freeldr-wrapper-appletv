@@ -4,6 +4,7 @@
 #include "atvint.h"
 #include "atvmach.h"
 #include "atvutils.h"
+#include "new_console.h"
 
 extern int sprintf(char *buf, const char *fmt, ...);
 extern int printk(const char *szFormat, ...);
@@ -12,5 +13,6 @@ extern volatile uint32_t VIDEO_CURSOR_POSY;
 extern volatile uint32_t VIDEO_CURSOR_POSX;
 extern volatile uint32_t VIDEO_ATTR;
 extern volatile CURRENT_VIDEO_MODE_DETAILS vmode;
+
 
 #endif
