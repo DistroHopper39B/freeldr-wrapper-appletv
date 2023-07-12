@@ -5,5 +5,5 @@
 #ifndef PLAYGROUND_NEW_CONSOLE_H
 #define PLAYGROUND_NEW_CONSOLE_H
 
-extern void ClearScreen(int alpha);
+extern void ClearScreen(unsigned int args, int alpha);
 #endif //PLAYGROUND_NEW_CONSOLE_H

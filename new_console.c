@@ -7,10 +7,15 @@
 #include <stdarg.h>
 #include <font.h>
 
-
+mach_boot_parms *mach_bp;
 // Clear screen function
-void ClearScreen(int alpha) {
-    memset((void *) mach_bp->video.addr, alpha, vmode.width * vmode.height * 4);
+void ClearScreen(unsigned int args, int alpha) {
+    mach_bp = (mach_boot_parms *) args;
+
+    memset((void *) mach_bp->video.addr, alpha, mach_bp->video.width * mach_bp->video.height * 4);
+    VIDEO_CURSOR_POSX = 0;
+    VIDEO_CURSOR_POSY = 0;
+    VIDEO_ATTR = 0x0000FFFF; // VIDEO_* is deprecated
 }
 
 // linux/lib/fonts/font_8x16.c
@@ -4627,3 +4632,7 @@ static const struct font_data fontdata_8x16 = {
                 0x00, /* 00000000 */
                 0x00, /* 00000000 */
         } };
+
+void PlacePixel(int PixelLocationX, int PixelLocationY, uint8_t Blue, uint8_t Green, uint8_t Red, uint8_t Alpha) {
+    // check to see whether
+}

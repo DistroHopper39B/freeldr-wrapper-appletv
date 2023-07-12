@@ -19,7 +19,6 @@ extern int vsprintf(char *buf, const char *fmt, va_list args);
 volatile uint32_t VIDEO_CURSOR_POSY;
 volatile uint32_t VIDEO_CURSOR_POSX;
 volatile uint32_t VIDEO_ATTR;
-volatile CURRENT_VIDEO_MODE_DETAILS vmode;
 
 const unsigned short waStarts[] = {
         0, 4, 12, 20, 29, 42, 53, 56, // <-- (
@@ -549,12 +548,12 @@ void BootVideoChunkedPrint(const char *szBuffer) {
 	while (szBuffer[n] != 0) {
 		if (szBuffer[n] == '\n') {
 			BootVideoOverlayString(
-				(u32 *)((mach_bp->video.addr) + VIDEO_CURSOR_POSY * (vmode.width*4) + VIDEO_CURSOR_POSX),
-				vmode.width*4, VIDEO_ATTR, &szBuffer[nDone]
+				(u32 *)((mach_bp->video.addr) + VIDEO_CURSOR_POSY * (mach_bp->video.width*4) + VIDEO_CURSOR_POSX),
+				mach_bp->video.width*4, VIDEO_ATTR, &szBuffer[nDone]
 			);
             nDone = n + 1;
 			VIDEO_CURSOR_POSY += 16;
-			VIDEO_CURSOR_POSX = vmode.xmargin << 2;
+			VIDEO_CURSOR_POSX = 0 << 2;
 		}
 		n++;
 	}

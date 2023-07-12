@@ -54,11 +54,6 @@ extern mach_boot_parms *mach_bp;
 
 typedef unsigned long BGRA;
 
-typedef struct {
-    uint32_t width; // everything else filled by BootVgaInitializationKernel() on return
-    uint32_t height;
-    uint32_t xmargin;
-} CURRENT_VIDEO_MODE_DETAILS;
 
 //
 
