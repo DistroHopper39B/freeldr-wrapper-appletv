@@ -37,11 +37,11 @@ mseconds(void)
 	int			r;
 
 	if (!set) {
-		asm __volatile__ ("rdtsc\n":"=a" (l0), "=d" (h0):);
+		__asm__ __volatile__ ("rdtsc\n":"=a" (l0), "=d" (h0):);
 		set++;
 	}
 
-	asm __volatile__ ("rdtsc\n":"=a" (l), "=d" (h):);
+	__asm__ __volatile__ ("rdtsc\n":"=a" (l), "=d" (h):);
 
 
 	r = (h - h0) << 12;

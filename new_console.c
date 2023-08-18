@@ -2184,7 +2184,7 @@ static const struct font_data fontdata_8x16 = {
                 0x00, /* 00000000 */
                 0x00, /* 00000000 */
 
-                /* 120 0x78 'x' */
+                /* 120 0x78 'y' */
                 0x00, /* 00000000 */
                 0x00, /* 00000000 */
                 0x00, /* 00000000 */
@@ -4633,6 +4633,141 @@ static const struct font_data fontdata_8x16 = {
                 0x00, /* 00000000 */
         } };
 
-void PlacePixel(int PixelLocationX, int PixelLocationY, uint8_t Blue, uint8_t Green, uint8_t Red, uint8_t Alpha) {
-    // check to see whether
+// Pixel placement code. The top left corner is located at (1, 1)
+void PlacePixel(int PixelLocationX, int PixelLocationY, u32 RgbaValue) {
+    // convert from 32-bit RGBA number to 4 8-bit numbers
+    u8 Red = (RgbaValue >> 24) & 0xFF;
+    u8 Green = (RgbaValue >> 16) & 0xFF;
+    u8 Blue = (RgbaValue >> 8) & 0xFF;
+    u8 Alpha = RgbaValue & 0xFF;
+    // find pixel address and correct top left pixel from (0, 0) to (1, 1)
+    u32 PixelStartingAddr = mach_bp->video.addr + ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * mach_bp->video.width * 4);
+    /* Apple TV linear frame buffer printing logic. Works the same as every other RGBA linear frame buffer. */
+    memset((void *) PixelStartingAddr, Blue, 1); // blue
+    memset((void *) PixelStartingAddr + 1, Green, 1); // green
+    memset((void *) PixelStartingAddr + 2, Red, 1); // red
+    memset((void *) PixelStartingAddr + 3, Alpha, 1); // alpha
+}
+
+void DrawColorBars() {
+    u32 ColorWhite = 0xFFFFFFFF;
+    u32 ColorYellow = 0xFFFF00FF;
+    u32 ColorCyan = 0x00FFFFFF;
+    u32 ColorGreen = 0x00FF00FF;
+    u32 ColorMagenta = 0xFF00FFFF;
+    u32 ColorRed = 0xFF0000FF;
+    u32 ColorBlue = 0x0000FFFF;
+    u32 ColorBlack = 0x000000FF;
+
+    // white
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = 1; x <= mach_bp->video.width / 8; x++)
+            PlacePixel(x, y, ColorWhite);
+    }
+    // yellow
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = mach_bp->video.width / 8; x <= (mach_bp->video.width / 8) * 2; x++)
+            PlacePixel(x, y, ColorYellow);
+    }
+    // cyan
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = (mach_bp->video.width / 8) * 2; x <= (mach_bp->video.width / 8) * 3; x++)
+            PlacePixel(x, y, ColorCyan);
+    }
+    // green
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = (mach_bp->video.width / 8) * 3; x <= (mach_bp->video.width / 8) * 4; x++)
+            PlacePixel(x, y, ColorGreen);
+    }
+    // magenta
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = (mach_bp->video.width / 8) * 4; x <= (mach_bp->video.width / 8) * 5; x++)
+            PlacePixel(x, y, ColorMagenta);
+    }
+    // red
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = (mach_bp->video.width / 8) * 5; x <= (mach_bp->video.width / 8) * 6; x++)
+            PlacePixel(x, y, ColorRed);
+    }
+    // blue
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = (mach_bp->video.width / 8) * 6; x <= (mach_bp->video.width / 8) * 7; x++)
+            PlacePixel(x, y, ColorBlue);
+    }
+    // black
+    for(int y = 1; y <= mach_bp->video.height; y++) {
+        for(int x = (mach_bp->video.width / 8) * 7; x <= (mach_bp->video.width / 8) * 8; x++)
+            PlacePixel(x, y, ColorBlack);
+    }
+}
+void DrawPrideFlag() {
+    u32 PrideColorRed = 0xE40303FF;
+    u32 PrideColorOrange = 0xFF8C00FF;
+    u32 PrideColorYellow = 0xFFED00FF;
+    u32 PrideColorGreen = 0x008026FF;
+    u32 PrideColorIndigo = 0x24408EFF;
+    u32 PrideColorViolet = 0x732982FF;
+
+    // red
+    for(int y = 1; y <= mach_bp->video.height / 6; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, PrideColorRed);
+    }
+    // orange
+    for(int y = (mach_bp->video.height / 6) * 1; y <= (mach_bp->video.height / 6) * 2; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, PrideColorOrange);
+    }
+    // yellow
+    for(int y = (mach_bp->video.height / 6) * 2; y <= (mach_bp->video.height / 6) * 3; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, PrideColorYellow);
+    }
+    // green
+    for(int y = (mach_bp->video.height / 6) * 3; y <= (mach_bp->video.height / 6) * 4; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, PrideColorGreen);
+    }
+    // indigo
+    for(int y = (mach_bp->video.height / 6) * 4; y <= (mach_bp->video.height / 6) * 5; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, PrideColorIndigo);
+    }
+    // violet
+    for(int y = (mach_bp->video.height / 6) * 5; y <= (mach_bp->video.height / 6) * 6; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, PrideColorViolet);
+    }
+}
+
+void DrawTransFlag() {
+    u32 TransColorBlue = 0x5BCEFAFF;
+    u32 TransColorPink = 0xF5A9B8FF;
+    u32 TransColorWhite = 0xFFFFFFFF;
+
+    // blue (1)
+    for(int y = 1; y <= mach_bp->video.height / 5; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, TransColorBlue);
+    }
+    // pink (1)
+    for(int y = (mach_bp->video.height / 5) * 1; y <= (mach_bp->video.height / 5) * 2; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, TransColorPink);
+    }
+    // white
+    for(int y = (mach_bp->video.height / 5) * 2; y <= (mach_bp->video.height / 5) * 3; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, TransColorWhite);
+    }
+    // pink (2)
+    for(int y = (mach_bp->video.height / 5) * 3; y <= (mach_bp->video.height / 5) * 4; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, TransColorPink);
+    }
+    // blue (2)
+    for(int y = (mach_bp->video.height / 5) * 4; y <= (mach_bp->video.height / 5) * 5; y++) {
+        for (int x = 1; x <= mach_bp->video.width; x++)
+            PlacePixel(x, y, TransColorBlue);
+    }
 }

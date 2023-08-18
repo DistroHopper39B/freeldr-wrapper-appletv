@@ -2,13 +2,13 @@
 A small early stage bootloader and playground for the Apple TV (1st Generation) based on [atv-bootloader](https://github.com/davilla/atv-bootloader).
 
 ### What this can do now:
-- Print text to a display (implementation from atv-bootloader)
+- Print text to a display (implementation from atv-bootloader, to be replaced)
 - Print text to a serial port in e.g. VirtualBox (my own implementation)
-- Basic CPU-clock-based timing (implementation from atv-bootloader)
+- Basic CPU-clock-based timing (implementation from atv-bootloader, may be replaced)
 - Compiles to a Mach-O executable and takes the place of the `mach_kernel` (implementation from atv-bootloader)
+- Print a pixel of any RGBA color to anywhere on the screen with `PlacePixel(int PixelLocationX, int PixelLocationY, u32 RgbaValue)` (my own implementation)
+- Demos: `DrawColorBars()`, `DrawPrideFlag()`, `DrawTransFlag()` (my own implementation)
 ### Future implementation ideas:
-- Arbitrary grid-based pixel manipulation 
-- Color support
 - ANSI escape code support in `printk()`
 - Interactive demos (controlled by the serial terminal)
 - ~~Compilation to Mach-O using a linker (*.ld) script, so that a cross compiler is not required~~ Not doable as of now
