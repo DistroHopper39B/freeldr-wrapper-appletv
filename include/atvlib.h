@@ -4,15 +4,10 @@
 #include "atvint.h"
 #include "atvmach.h"
 #include "atvutils.h"
-#include "new_console.h"
+#include "console.h"
 #include "demos.h"
+#include "debug.h"
 
-extern int sprintf(char *buf, const char *fmt, ...);
-extern int printk(const char *szFormat, ...);
-
-extern volatile uint32_t VIDEO_CURSOR_POSY;
-extern volatile uint32_t VIDEO_CURSOR_POSX;
-extern volatile uint32_t VIDEO_ATTR;
-
+extern int vsprintf(char *buf, const char *fmt, va_list args);
 
 #endif
