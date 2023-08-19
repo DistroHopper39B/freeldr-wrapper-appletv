@@ -3,25 +3,26 @@ atv-playground. Based on atv-bootloader.
 */
 #include <atvlib.h>
 
-void playground_start(unsigned int idkwtfthisworks) { // called by start symbol in the executable
-    ClearScreen(idkwtfthisworks, 0x00);
-    if(strstr(mach_bp->cmdline, "gay")) {
-        DrawPrideFlag();
-    } else if(strstr(mach_bp->cmdline, "trans")) {
-        DrawTransFlag();
-    } else {
-        DrawColorBars();
-    }
+mach_boot_parms *mach_bp;
 
-    /*
-    int i = 0;
-    while(i <= 24) {
-        printk(" !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUV\n");
-        i++;
-    }
-    */
+void playground_start(unsigned int args) { // called by start symbol in the executable
+    mach_bp = (mach_boot_parms *) args;
 
-    // do not delete this line!
-    printk("\n");
+    // ClearScreen(0x00);
+
+    PlaceCharacter('H', 1, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('e', 9, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('l', 17, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('l', 25, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('o', 33, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter(',', 41, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter(' ', 49, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('W', 57, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('o', 65, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('r', 73, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('l', 81, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('d', 89, 1, 0x00000000, 0xFFFFFFFF);
+    PlaceCharacter('!', 97, 1, 0x00000000, 0xFFFFFFFF);
+
     while (1);
 }

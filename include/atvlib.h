@@ -5,6 +5,7 @@
 #include "atvmach.h"
 #include "atvutils.h"
 #include "new_console.h"
+#include "demos.h"
 
 extern int sprintf(char *buf, const char *fmt, ...);
 extern int printk(const char *szFormat, ...);

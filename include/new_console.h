@@ -5,9 +5,7 @@
 #ifndef PLAYGROUND_NEW_CONSOLE_H
 #define PLAYGROUND_NEW_CONSOLE_H
 
-extern void ClearScreen(unsigned int args, int alpha);
-extern void PlacePixel(int PixelLocationX, int PixelLocationY, u32 RgbaValue);
-extern void DrawColorBars();
-extern void DrawPrideFlag();
-extern void DrawTransFlag();
+extern void ClearScreen(int alpha);
+extern void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue);
+void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY, u32 BackgroundColor, u32 ForegroundColor);
 #endif //PLAYGROUND_NEW_CONSOLE_H
