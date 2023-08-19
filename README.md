@@ -8,6 +8,7 @@ A small early stage bootloader and playground for the Apple TV (1st Generation) 
 - Compiles to a Mach-O executable and takes the place of the `mach_kernel` (implementation from atv-bootloader)
 - Print a pixel of any RGBA color to anywhere on the screen with `PlacePixel(int PixelLocationX, int PixelLocationY, u32 RgbaValue)` (my own implementation)
 - Demos: `DrawColorBars()`, `DrawPrideFlag()`, `DrawTransFlag()` (my own implementation)
+- 8x16 monospaced font, `PlaceCharacter` function
 ### Future implementation ideas:
 - ANSI escape code support in `printk()`
 - Interactive demos (controlled by the serial terminal)
