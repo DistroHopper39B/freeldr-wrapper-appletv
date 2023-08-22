@@ -57,7 +57,6 @@ void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY
 }
 // Actually print to the screen
 void PrintToScreen(const char *szBuffer) {
-
     for(int i = 0; szBuffer[i] != '\0'; i++) {
         if(szBuffer[i] == '\n') {
             VideoCursorX = VideoCursorOrigX;
@@ -103,8 +102,8 @@ void printk(const char *szFormat, ...) {
     if (wLength > (sizeof(szBuffer) - 1))
         wLength = sizeof(szBuffer) - 1;
     szBuffer[wLength] = '\0';
-
-    PrintToSerial(szBuffer);
-
     PrintToScreen(szBuffer);
+    if(SERIAL_ENABLE == 1) {
+        PrintToSerial(szBuffer);
+    }
 }

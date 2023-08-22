@@ -2,7 +2,7 @@
 #define _ATVMACH_H_
 
 #include <atvint.h>
-
+#include "appletv_firmware.h"
 #define DARWIN_IMAGE_BASE	0x002000000
 // xnu pexpert/pexpert/i386/boot.h
 /* Values for v_display */
@@ -44,16 +44,13 @@ typedef struct _mach_boot_parms {
     uint32_t         ksize;
     uint32_t         efi_runtime_page;
     uint32_t         efi_runtime_page_count;
-    uint32_t         efi_sys_tbl;
+    efi_system_table_t         *efi_sys_tbl;
     uint8_t          efi_mode;
     uint8_t          __reserved1[3];
     uint32_t         __reserved2[7];
 } __attribute__((aligned(4))) mach_boot_parms;
 //
 extern mach_boot_parms *mach_bp;
-
-typedef unsigned long BGRA;
-
 
 //
 

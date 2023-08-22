@@ -22,4 +22,6 @@ if(APPLE)
 endif(APPLE)
 
 include_directories(./include)
-add_executable(mach_kernel start.S playground.c utils.c vsprintf.c console.c include/console.h demos.c include/demos.h include/font.h include/debug.h)
+add_executable(mach_kernel start.S playground.c utils.c vsprintf.c console.c demos.c
+        tvfixes.c
+)
