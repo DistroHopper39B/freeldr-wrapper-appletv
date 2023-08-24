@@ -11,13 +11,15 @@ const u32 VideoCursorOrigX = 1;
 const u32 VideoCursorOrigY = 1;
 volatile u32 TextBackgroundColor = 0x00000000;
 volatile u32 TextForegroundColor = 0xFFFFFFFF;
-volatile u32 VideoCursorX = VideoCursorOrigX;
-volatile u32 VideoCursorY = VideoCursorOrigY;
+volatile u32 VideoCursorX;
+volatile u32 VideoCursorY;
 
 
 // Clear screen function
 void ClearScreen(int alpha) {
     memset((void *) mach_bp->video.addr, alpha, mach_bp->video.width * mach_bp->video.height * 4);
+    VideoCursorX = VideoCursorOrigX;
+    VideoCursorY = VideoCursorOrigY;
 }
 
 // Pixel placement code. The top left corner is located at (1, 1)

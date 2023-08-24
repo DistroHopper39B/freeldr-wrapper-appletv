@@ -601,19 +601,20 @@ typedef struct {
 typedef union efi_simple_text_input_protocol efi_simple_text_input_protocol_t;
 typedef union efi_simple_text_output_protocol efi_simple_text_output_protocol_t;
 
+// Despite full access to the efi system table, only hdr, fw_vendor, fw_revision, runtime, nr_tables, and tables are accessible through mach_bp. No boot services functions are available.
 typedef union {
 	struct {
 		efi_table_hdr_t hdr;
 		unsigned long fw_vendor;	/* physical addr of CHAR16 vendor string */
 		u32 fw_revision;
-		unsigned long con_in_handle;
-		efi_simple_text_input_protocol_t *con_in;
-		unsigned long con_out_handle;
-		efi_simple_text_output_protocol_t *con_out;
-		unsigned long stderr_handle;
-		unsigned long stderr;
+		unsigned long con_in_handle; // null pointer
+		efi_simple_text_input_protocol_t *con_in; // null pointer
+		unsigned long con_out_handle; // null pointer
+		efi_simple_text_output_protocol_t *con_out; // null pointer
+		unsigned long stderr_handle; // null pointer
+		unsigned long stderr; // null pointer
 		efi_runtime_services_t *runtime;
-		efi_boot_services_t *boottime;
+		efi_boot_services_t *boottime; // null pointer
 		unsigned long nr_tables;
 		unsigned long tables;
 	};
