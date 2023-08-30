@@ -74,10 +74,21 @@ void ChangeColors(u32 Foreground, u32 Background) {
     TextForegroundColor = Foreground;
     TextBackgroundColor = Background;
 }
+// Serial port code
+void outb(uint16_t port, uint8_t val) {
+    __asm__ __volatile__ ( "outb %0, %1" : : "a"(val), "Nd"(port) );
+}
+
+// inb asm->c (not used yet)
+uint8_t inb(uint16_t port) {
+    uint8_t ret;
+    __asm__ __volatile__ ( "inb %1, %0" : "=a"(ret) : "Nd"(port) );
+    return ret;
+}
 // Print buffer to COM1
 void PrintToSerial(const char *szBuffer) {
     for(int i = 0; szBuffer[i] != '\0'; i++) {
-        outb(szBuffer[i], COM1);
+        outb(COM1, szBuffer[i]);
     }
 }
 void printk(const char *szFormat, ...) {
