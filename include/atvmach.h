@@ -10,15 +10,7 @@
 #define GRAPHICS_MODE 1
 #define FB_TEXT_MODE  2
 #define CMDLINE	1024
-//
-typedef struct _Boot_Video {
-	uint32_t v_baseAddr;	// Base address of video memory
-	uint32_t v_display;	// Display Code (0, 1, 2)
-	uint32_t v_rowBytes;	// Number of bytes per pixel row
-	uint32_t v_width;	// Width
-	uint32_t v_height;	// Height
-	uint32_t v_depth;	// Pixel Depth
-} __attribute__((aligned(4))) Boot_Video;
+
 //
 typedef struct _mach_video_parms {
 	uint32_t addr;
