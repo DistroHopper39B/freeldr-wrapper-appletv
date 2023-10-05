@@ -2,7 +2,7 @@
 #define _ATVMACH_H_
 
 #include <atvint.h>
-#include "appletv_firmware.h"
+#include <efi.h>
 #define DARWIN_IMAGE_BASE	0x002000000
 // xnu pexpert/pexpert/i386/boot.h
 /* Values for v_display */

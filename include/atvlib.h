@@ -7,7 +7,7 @@
 #include "console.h"
 #include "demos.h"
 #include "debug.h"
-#include "appletv_firmware.h"
+#include <efi.h>
 
 extern int vsprintf(char *buf, const char *fmt, va_list args);
 extern void quirk_fixup_efi_memmap();

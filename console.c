@@ -17,20 +17,22 @@ volatile u32 VideoCursorY;
 
 // Clear screen function
 void ClearScreen(int alpha) {
-    memset((void *) mach_bp->video.addr, alpha, mach_bp->video.width * mach_bp->video.height * 4);
+    memset((void *) mach_bp->video.addr, alpha, (mach_bp->video.rowb / 4) * mach_bp->video.height * 4);
     VideoCursorX = VideoCursorOrigX;
     VideoCursorY = VideoCursorOrigY;
 }
 
 // Pixel placement code. The top left corner is located at (1, 1)
 void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue) {
+    // Define width as pitch / 4. This is done to prevent a corrupted image when the TV's HDMI output setting is RGB (doing this prevents a purple hue on Linux/Mac OS X after a GPU driver is loaded).
+    u32 VideoWidth = mach_bp->video.rowb / 4;
     // convert from 32-bit RGBA number to 4 8-bit numbers
     u8 Red = (RgbaValue >> 24) & 0xFF;
     u8 Green = (RgbaValue >> 16) & 0xFF;
     u8 Blue = (RgbaValue >> 8) & 0xFF;
     u8 Alpha = RgbaValue & 0xFF;
     // find pixel address and correct top left pixel from (0, 0) to (1, 1)
-    u32 PixelStartingAddr = mach_bp->video.addr + ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * mach_bp->video.width * 4);
+    u32 PixelStartingAddr = mach_bp->video.addr + ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * VideoWidth * 4);
     /* Apple TV linear frame buffer printing logic. Works the same as every other RGBA linear frame buffer. */
     memset((void *) PixelStartingAddr, Blue, 1); // blue
     memset((void *) PixelStartingAddr + 1, Green, 1); // green

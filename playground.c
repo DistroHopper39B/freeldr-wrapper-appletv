@@ -7,10 +7,9 @@ mach_boot_parms *mach_bp;
 
 void playground_start(unsigned int args) { // called by start symbol in the executable
     mach_bp = (mach_boot_parms *) args;
-
     efi_time_t currentTime;
-
     ClearScreen(0xFF);
+
 
     printk("Apple TV Windows loader, version dev0\n");
     uefi_call_wrapper(mach_bp->efi_sys_tbl->runtime->get_time, 2, &currentTime, NULL);
