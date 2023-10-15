@@ -24,7 +24,15 @@ if(UNIX)
 endif(UNIX)
 
 if(APPLE)
-    set(CMAKE_C_LINK_EXECUTABLE "ld -static -o <TARGET> <OBJECTS>")
+    set(CMAKE_C_LINK_EXECUTABLE "ld -static -force_cpusubtype_ALL \
+    -segalign 0x1000 -segaddr __TEXT 0x2000000 \
+    -sectalign __TEXT __text 0x1000 \
+    -sectalign __DATA __common 0x1000 \
+    -sectalign __DATA __bss 0x1000 \
+    -sectcreate __PRELINK __text /dev/null \
+    -sectcreate __PRELINK __symtab /dev/null \
+    -sectcreate __PRELINK __info /dev/null \
+    -o <TARGET> <OBJECTS>")
     set(CMAKE_C_FLAGS "-static -nostdlib -arch i386 -O3 -fno-stack-protector")
     set(CMAKE_ASM_FLAGS "-static -nostdlib -arch i386 -DASSEMBLER")
 endif(APPLE)
