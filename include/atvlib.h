@@ -7,10 +7,12 @@
 #include "console.h"
 #include "demos.h"
 #include "debug.h"
+#include "handoff_struct.h"
 #include <efi.h>
 
 extern int vsprintf(char *buf, const char *fmt, va_list args);
 extern void quirk_fixup_efi_memmap();
-
+extern void CreateNewBootStruct();
+extern HandoffBootStruct *BootStruct;
 
 #endif

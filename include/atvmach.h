@@ -31,8 +31,8 @@ typedef struct _mach_boot_parms {
     mach_video_parms video;
     uint32_t         devtree_ptr;			// Base of flattened device tree
     uint32_t         devtree_len;			// Length of flattened tree
-    uint32_t         kaddr;
-    uint32_t         ksize;
+    uint32_t         kaddr;                 // beginning of kernel .text segment?
+    uint32_t         ksize;                 // size of text + data + efi? this resolves to 19MB which
     uint32_t         efi_runtime_page;
     uint32_t         efi_runtime_page_count;
     efi_system_table_t         *efi_sys_tbl;

@@ -1,7 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef _LINUX_EFI_H
 #define _LINUX_EFI_H
+
 #include <atvint.h>
+
 extern int memcmp(const void *cs,const void *ct, size_t count);
 
 // acpi/smbios code from linux_code.h

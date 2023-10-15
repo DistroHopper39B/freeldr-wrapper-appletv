@@ -4,7 +4,7 @@
 //
 
 #include <atvlib.h>
-
+#include <handoff_struct.h>
 void quirk_fixup_efi_memmap()
 {
     /* November 26, 2007 -- Scott Davilla (davilla@4pi.com)
@@ -120,4 +120,23 @@ void quirk_fixup_efi_memmap()
     ChangeColors(0xFFFFFFFF, 0x00000000);
 }
 
+HandoffBootStruct *BootStruct;
 
+// Create new boot struct for use with freeldr.
+void CreateNewBootStruct() {
+    BootStruct->AppleTVMagic = ATV_MAGIC_NUMBER;
+
+    BootStruct->EfiMap.EfiMemoryMap = mach_bp->efi_mem_map;
+    BootStruct->EfiMap.EfiMemoryMapSize = mach_bp->efi_mem_map_size;
+    BootStruct->EfiMap.EfiMemDescSize = mach_bp->efi_mem_desc_size;
+    BootStruct->EfiMap.EfiMemDescVer = mach_bp->efi_mem_desc_ver;
+    BootStruct->EfiRuntimeServices = mach_bp->efi_sys_tbl->runtime;
+
+    BootStruct->Video.BaseAddress = mach_bp->video.addr;
+    BootStruct->Video.Pitch = mach_bp->video.rowb;
+    BootStruct->Video.Width = mach_bp->video.width;
+    BootStruct->Video.Height = mach_bp->video.height;
+    BootStruct->Video.Depth = mach_bp->video.depth;
+
+    memcpy(BootStruct->CommandLine, mach_bp->cmdline, CMDLINE);
+}
