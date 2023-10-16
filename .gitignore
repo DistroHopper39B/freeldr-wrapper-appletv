@@ -1,5 +1,7 @@
 *.o
 .vscode
+*.bin
+*.elf
 .idea
 rebuild
 mach_kernel*

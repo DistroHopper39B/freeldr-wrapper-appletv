@@ -120,31 +120,6 @@ void quirk_fixup_efi_memmap()
     ChangeColors(0xFFFFFFFF, 0x00000000);
 }
 
-HandoffBootStruct *BootStruct;
-
-// Create new boot struct for use with freeldr.
-void CreateNewBootStruct() {
-    BootStruct->AppleTVMagic = ATV_MAGIC_NUMBER;
-
-    BootStruct->EfiMap.EfiMemoryMap = mach_bp->efi_mem_map;
-    BootStruct->EfiMap.EfiMemoryMapSize = mach_bp->efi_mem_map_size;
-    BootStruct->EfiMap.EfiMemDescSize = mach_bp->efi_mem_desc_size;
-    BootStruct->EfiMap.EfiMemDescVer = mach_bp->efi_mem_desc_ver;
-    BootStruct->EfiRuntimeServices = mach_bp->efi_sys_tbl->runtime;
-
-    BootStruct->Video.BaseAddress = mach_bp->video.addr;
-    BootStruct->Video.Pitch = mach_bp->video.rowb;
-    BootStruct->Video.Width = mach_bp->video.width;
-    BootStruct->Video.Height = mach_bp->video.height;
-    BootStruct->Video.Depth = mach_bp->video.depth;
-
-    memcpy(BootStruct->CommandLine, mach_bp->cmdline, CMDLINE);
-
-    BootStruct->Kernel.BaseAddress = mach_bp->kaddr;
-    BootStruct->Kernel.Size = mach_bp->ksize;
-    BootStruct->Kernel.End = (mach_bp->kaddr + mach_bp->ksize);
-}
-
 const struct section *getsectbynamefromheader(struct mach_header *mhp, const char *segname, const char *sectname)
 {
     struct segment_command *sgp;

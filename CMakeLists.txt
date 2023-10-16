@@ -17,7 +17,7 @@ if(UNIX)
     -sectcreate __PRELINK __text /dev/null \
     -sectcreate __PRELINK __symtab /dev/null \
     -sectcreate __PRELINK __info /dev/null \
-    -sectcreate __TEXT __stage2 ${CMAKE_SOURCE_DIR}/stage2_example/stub.bin \
+    -sectcreate __TEXT __stage2 ${CMAKE_SOURCE_DIR}/stage2_example/stage2.bin \
     -o <TARGET> <OBJECTS>")
     set(CMAKE_C_FLAGS "-Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 -isysroot /opt/osxcross/SDK/MacOSX10.4u.sdk")
     set(CMAKE_ASM_FLAGS "-Wall -static -nostdlib -arch i386 -DASSEMBLER -target i386-apple-darwin8 -isysroot /opt/osxcross/SDK/MacOSX10.4u.sdk")
