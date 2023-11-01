@@ -22,6 +22,12 @@ void ClearScreen(int alpha) {
     VideoCursorY = VideoCursorOrigY;
 }
 
+// Setup screen without clearing it
+void SetupScreen() {
+    VideoCursorX = VideoCursorOrigX;
+    VideoCursorY = VideoCursorOrigY;
+}
+
 // Pixel placement code. The top left corner is located at (1, 1)
 void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue) {
     // convert from 32-bit RGBA number to 4 8-bit numbers
@@ -42,9 +48,9 @@ void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY
     // find position in font
     int CharPosition = Character * ISO_CHAR_HEIGHT;
     // actual printing stuff
-    for(int i = 0; i < ISO_CHAR_HEIGHT; i++) { // printk all rows (runs 16 times = 128 total)
+    for(int i = 0; i < ISO_CHAR_HEIGHT; i++) { // print all rows (runs 16 times = 128 total)
         u8 CharLine = iso_font[CharPosition];
-        for(int j = 0; j < ISO_CHAR_WIDTH; j++) { // printk 1 row of a character (runs 8 times)
+        for(int j = 0; j < ISO_CHAR_WIDTH; j++) { // print 1 row of a character (runs 8 times)
             int f = CharLine >> j;
             if((f & 1) == 1) {
                 // foreground color

@@ -15,8 +15,7 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
     mach_bp = (mach_boot_parms *) args;
     efi_time_t currentTime;
 
-    ClearScreen(0x00);
-    DrawColorBars();
+    SetupScreen();
     CreateNewBootStruct();
     printk("Apple TV Windows loader, version dev0\n");
     uefi_call_wrapper(BootStruct->EfiRuntimeServices->get_time, 2, &currentTime, NULL);
@@ -28,7 +27,7 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
     printk("Command line args: %s\n", BootStruct->CommandLine);
     // Find the location of the embedded stage2 loader in the mach-o header.
     Stage2Ptr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__stage2", &Stage2Len);
-    printk("@ 0x%08X size %ib\n", Stage2Ptr, Stage2Len);
+    printk("@ 0x%08X size %i\n", Stage2Ptr, Stage2Len);
 
     // Copy the stage2 file to the stage2 location (1M).
     printk("Copying stage2 to 0x%08X...", Stage2Location);
@@ -39,7 +38,7 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
     printk("Copying boot struct to 0x%08X...", BootStructLocation);
     memcpy((void *) BootStructLocation, BootStruct, sizeof(HandoffBootStruct));
     printk("done.\n");
-    // Jump to kernel code
+    // Jump to stage2 code
     void (*entry_point)() = (void (*)())Stage2Location;
     printk("Jumping to stage2 in 3 seconds...\n");
     sleep(3);

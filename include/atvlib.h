@@ -5,7 +5,6 @@
 #include "atvmach.h"
 #include "atvutils.h"
 #include "console.h"
-#include "demos.h"
 #include "debug.h"
 #include "handoff_struct.h"
 #include <efi.h>
