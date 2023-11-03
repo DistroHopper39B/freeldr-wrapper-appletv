@@ -16,6 +16,7 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
     efi_time_t currentTime;
 
     SetupScreen();
+    ClearScreen(0xFF);
     CreateNewBootStruct();
     printk("Apple TV Windows loader, version dev0\n");
     uefi_call_wrapper(BootStruct->EfiRuntimeServices->get_time, 2, &currentTime, NULL);

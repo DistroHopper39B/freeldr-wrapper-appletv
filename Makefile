@@ -13,7 +13,7 @@ ASM := nasm
 
 # Definitions for linker
 ifeq ($(OSTYPE),Linux)
-	LD := $(TARGET)-ld
+	LD := /opt/cross/bin/$(TARGET)-ld
 else
 	LD := ld
 endif
@@ -23,10 +23,10 @@ STAGE2_PATH=stage2_example/stage2.bin
 
 # Flags for mach-o linker
 LDFLAGS := -static -force_cpusubtype_ALL \
-               -segalign 0x1000 -segaddr __TEXT 0x00400000 \
-               -sectalign __TEXT __text 0x1000 \
-               -sectalign __DATA __common 0x1000 \
-               -sectalign __DATA __bss 0x1000 \
+               -segalign 0x4000 -segaddr __TEXT 0x00400000 \
+               -sectalign __TEXT __text 0x4000 \
+               -sectalign __DATA __common 0x4000 \
+               -sectalign __DATA __bss 0x4000 \
                -sectcreate __PRELINK __text /dev/null \
                -sectcreate __PRELINK __symtab /dev/null \
                -sectcreate __PRELINK __info /dev/null \
@@ -35,10 +35,10 @@ LDFLAGS := -static -force_cpusubtype_ALL \
 # Include directories for headers
 INCLUDE_DIR = include
 
-CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 --target=$(TARGET) -isysroot $(SYSROOT) -I$(INCLUDE_DIR)
+CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 --target=$(TARGET) -isysroot $(SYSROOT) -Iinclude
 ASM_FLAGS := -fmacho32
 
-OBJS = start.o console.o tvfixes.o utils.o vsprintf.o playground.o
+OBJS = start.o console.o tvfixes.o utils.o vsprintf.o playground.o multiboot_loader.o multiboot.o
 
 %.o: %.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@
