@@ -199,7 +199,15 @@ struct multiboot_info
 #define MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED 0
 #define MULTIBOOT_FRAMEBUFFER_TYPE_RGB     1
 #define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT	2
+#define MULTIBOOT_FRAMEBUFFER_TYPE_EFI 3 // Unofficial AppleTV-specific extension.
   multiboot_uint8_t framebuffer_type;
+
+  // Unofficial AppleTV-specific extensions.
+  multiboot_uint32_t efi_runtime_services; // Pointer to EFI runtime services.
+  multiboot_uint32_t efi_memory_map_addr; // Pointer to EFI memory map.
+  multiboot_uint32_t efi_memory_map_size; // Size of EFI memory map.
+  multiboot_uint32_t efi_memory_descriptor_size; // Size of each EFI memory descriptor.
+
   union
   {
     struct
@@ -229,7 +237,7 @@ struct multiboot_color
 
 struct multiboot_mmap_entry
 {
-  multiboot_uint32_t size;
+  multiboot_uint32_t size; // should not be set
   multiboot_uint64_t addr;
   multiboot_uint64_t len;
 #define MULTIBOOT_MEMORY_AVAILABLE		1

@@ -31,6 +31,7 @@ LDFLAGS := -static -force_cpusubtype_ALL \
                -sectcreate __PRELINK __symtab /dev/null \
                -sectcreate __PRELINK __info /dev/null \
                -sectcreate __TEXT __stage2 $(STAGE2_PATH) \
+               -sectcreate __TEXT __multiboot freeldr.sys \
 
 # Include directories for headers
 INCLUDE_DIR = include

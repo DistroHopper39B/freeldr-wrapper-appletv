@@ -24,10 +24,10 @@ typedef struct _mach_boot_parms {
     uint16_t         rev;
     uint16_t         ver;
     char             cmdline[CMDLINE];
-    uint32_t         efi_mem_map;
-    uint32_t         efi_mem_map_size;
-    uint32_t         efi_mem_desc_size;
-    uint32_t         efi_mem_desc_ver;
+    uint32_t         efi_mem_map;           // Pointer to UEFI memory map
+    uint32_t         efi_mem_map_size;      // Size of UEFI memory map
+    uint32_t         efi_mem_desc_size;     // Size of each UEFI memory descriptor
+    uint32_t         efi_mem_desc_ver;      // UEFI memory descriptor version
     mach_video_parms video;
     uint32_t         devtree_ptr;			// Base of flattened device tree
     uint32_t         devtree_len;			// Length of flattened tree
