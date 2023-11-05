@@ -11,12 +11,13 @@
 #include "multiboot.h"
 
 extern int vsprintf(char *buf, const char *fmt, va_list args);
-extern void quirk_fixup_efi_memmap();
 extern void CreateNewBootStruct();
 extern HandoffBootStruct *BootStruct;
-extern void CreateMultibootInfoStructure(multiboot_info_t *mb);
+extern u32 *CreateMultibootInfoStructure(multiboot_info_t *mb);
 extern void FillMultibootMemoryMap(multiboot_info_t *mb);
 extern void PrintMultibootMemoryMap(multiboot_info_t *mb);
+extern u32 ValidateMultibootHeader();
+extern void load_multiboot(multiboot_info_t *mb);
 
 // from assembly
 extern void fail();

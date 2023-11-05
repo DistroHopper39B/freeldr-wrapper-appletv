@@ -11,8 +11,10 @@
 u8 *MultibootPtrOrig = NULL;
 u32 MultibootLen = 0;
 
-#define MULTIBOOT_FLAGS (MULTIBOOT_INFO_MEMORY | MULTIBOOT_INFO_BOOTDEV | MULTIBOOT_INFO_CMDLINE | \
+#define MULTIBOOT_FLAGS ( MULTIBOOT_INFO_BOOTDEV | MULTIBOOT_INFO_CMDLINE | \
 MULTIBOOT_INFO_MEM_MAP | MULTIBOOT_INFO_BOOT_LOADER_NAME | MULTIBOOT_INFO_FRAMEBUFFER_INFO)
+
+#define MULTIBOOT_SEARCH 8192
 /**
  * Convert EFI memory map to Multiboot memory map to be passed to freeldr.
  * This code is based on a Linux kernel patch submitted by Edgar Hucek and modified for use with a Multiboot
@@ -163,7 +165,7 @@ void FillMultibootMemoryMap(multiboot_info_t *mb) {
     struct multiboot_mmap_entry *MultibootMapEntry;
 
     EfiNumberOfEntries = mb->efi_memory_map_size / mb->efi_memory_descriptor_size;
-    printk("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
+    //printk("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
     MultibootMapEntry = (struct multiboot_mmap_entry *) mb->mmap_addr;
 
     for(i = 0, p = (efi_memory_desc_t *) mb->efi_memory_map_addr; i < EfiNumberOfEntries; i++) {
@@ -240,68 +242,18 @@ void FillMultibootMemoryMap(multiboot_info_t *mb) {
         }
         p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, mb->efi_memory_descriptor_size);
     }
-    printk("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
+    //printk("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
     mb->mmap_length = sizeof(struct multiboot_mmap_entry) * MultibootNumberOfEntries;
 }
 
-
-// Create Multiboot information structure to pass to bootloader.
-void CreateMultibootInfoStructure(multiboot_info_t *mb) {
-    printk("Multiboot flags: 0x%08X\n", MULTIBOOT_FLAGS);
-    mb->flags = MULTIBOOT_FLAGS;
-
-    mb->mem_lower = 0xDEAD; // we need more stuff
-    mb->mem_upper = 0xDEAD; // we need more stuff
-
-    mb->boot_device = 0; // The root partition should always be 0, but I don't know if I will handle this
-
-    mb->cmdline = 0xBEEF; // I think this has to be a pointer?
-
-    mb->mods_count = 0;
-    mb->mods_addr = 0;
-
-    //Setup memory map (including EFI memory map)
-    mb->efi_memory_map_addr = mach_bp->efi_mem_map;
-    mb->efi_memory_map_size = mach_bp->efi_mem_map_size;
-    mb->efi_memory_descriptor_size = mach_bp->efi_mem_desc_size;
-    quirk_fixup_efi_memmap(mb);
-    mb->mmap_addr = 0x001F0000;
-    FillMultibootMemoryMap(mb); // mb->mmap_length
-
-    mb->drives_length = 0;
-    mb->drives_addr = 0;
-
-    mb->config_table = 0;
-
-    mb->boot_loader_name = 0xBEEF; // needs to be a pointer
-
-    mb->apm_table = 0; // No APM BIOS present
-
-    mb->framebuffer_addr = mach_bp->video.addr;
-    mb->framebuffer_pitch = mach_bp->video.rowb;
-    mb->framebuffer_width = mach_bp->video.width;
-    mb->framebuffer_height = mach_bp->video.height;
-    mb->framebuffer_bpp = mach_bp->video.depth;
-    mb->framebuffer_type = MULTIBOOT_FRAMEBUFFER_TYPE_EFI;
-
-    mb->efi_runtime_services = (multiboot_uint32_t) mach_bp->efi_sys_tbl->runtime;
-}
-
-// Validate executable header to be Multiboot-compatible and have correct flags.
-void ValidateMultibootHeader() {
-    // Find multiboot in the executable.
-    MultibootPtrOrig = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__stage2", &MultibootLen);
-    printk("@ 0x%08X size %i\n", MultibootPtrOrig, MultibootLen);
-}
-
 void PrintMultibootMemoryMap(multiboot_info_t *mb) {
-    int					i;
+    int	i;
     struct multiboot_mmap_entry *MultibootMapEntry;
     MultibootMapEntry = (struct multiboot_mmap_entry *) mb->mmap_addr;
-    
+
 
     for (i = 0; i < mb->mmap_length / sizeof(struct multiboot_mmap_entry); i++) {
-        printk("ATV: %s: 0x%08X%08X - 0x%08X%08X ", "Multiboot Memory Map",
+        printk("%s: 0x%08X%08X - 0x%08X%08X ", "Multiboot Memory Map",
                hi32( MultibootMapEntry[i].addr ),
                lo32( MultibootMapEntry[i].addr ),
                hi32( MultibootMapEntry[i].addr + MultibootMapEntry[i].len),
@@ -327,5 +279,142 @@ void PrintMultibootMemoryMap(multiboot_info_t *mb) {
 
 }
 
+const char BootloaderName[] = "atv-playground";
+// Create Multiboot information structure to pass to bootloader.
+u32 *CreateMultibootInfoStructure(multiboot_info_t *mb) {
+    //printk("Multiboot flags: 0x%08X\n", MULTIBOOT_FLAGS);
+    mb->flags = MULTIBOOT_FLAGS;
+
+
+    mb->boot_device = 0; // The root partition should always be 0, but I don't know if I will handle this
+
+    mb->cmdline = (multiboot_uint32_t) mach_bp->cmdline;
+
+    // Setup memory map (including EFI memory map)
+    mb->efi_memory_map_addr = mach_bp->efi_mem_map;
+    mb->efi_memory_map_size = mach_bp->efi_mem_map_size;
+    mb->efi_memory_descriptor_size = mach_bp->efi_mem_desc_size;
+    quirk_fixup_efi_memmap(mb);
+    mb->mmap_addr = 0x003F0000;
+    FillMultibootMemoryMap(mb); // mb->mmap_length
+
+    mb->drives_length = 0;
+    mb->drives_addr = 0;
+
+    mb->config_table = 0;
+
+    mb->boot_loader_name = (multiboot_uint32_t) BootloaderName; // needs to be a pointer
+
+    mb->apm_table = 0; // No APM BIOS present
+
+    mb->framebuffer_addr = mach_bp->video.addr;
+    mb->framebuffer_pitch = mach_bp->video.rowb;
+    mb->framebuffer_width = mach_bp->video.width;
+    mb->framebuffer_height = mach_bp->video.height;
+    mb->framebuffer_bpp = mach_bp->video.depth;
+    mb->framebuffer_type = MULTIBOOT_FRAMEBUFFER_TYPE_EFI;
+
+    mb->efi_system_table = (multiboot_uint32_t) mach_bp->efi_sys_tbl;
+
+    mb->appletv_kernel_base = mach_bp->kaddr;
+    mb->appletv_kernel_size = mach_bp->ksize;
+    mb->appletv_kernel_end = (mach_bp->kaddr + mach_bp->ksize);
+
+    //printk("Kernel base: 0x%08X\n", mb->appletv_kernel_base);
+    //printk("Kernel size: %i\n", mb->appletv_kernel_size);
+    //printk("Kernel end: 0x%08X\n", mb->appletv_kernel_end);
+    return (u32 *) mb;
+}
+
+// Validate executable header to be Multiboot-compatible and have correct flags.
+u32 ValidateMultibootHeader() {
+    u32 MultibootHeaderOffset = 0;
+    // Find multiboot segment in the mach_kernel.
+    MultibootPtrOrig = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__multiboot", &MultibootLen);
+    // Look for multiboot magic number
+    printk("Looking for multiboot magic number...");
+    for(size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
+        u32 *current_addr = (u32 *) (MultibootPtrOrig + i);
+
+        if (*current_addr == MULTIBOOT_HEADER_MAGIC) {
+            printk("Found magic number 0x%08X at offset 0x%08X\n", MULTIBOOT_HEADER_MAGIC, i);
+            MultibootHeaderOffset = i;
+        }
+    }
+    if(MultibootHeaderOffset == 0) {
+        printk("FATAL: Could not find magic number 0x%08X!\n", MULTIBOOT_HEADER_MAGIC);
+        fail();
+    }
+    return MultibootHeaderOffset;
+}
+
+/**
+ * On EFI systems, such as the Apple TV, the ACPI and SMBIOS tables are in a different location than where Windows and
+ * other legacy OSes expect them to be. We need to copy them to the correct memory regions here.
+ * This code is based on atv-bootloader.
+ */
+void LegacyAcpiSmbiosFix() {
+    efi_system_table_t	*system_table;
+    efi_config_table_t	*config_tables;
+    struct efi_tables efitab;
+    int					i, num_config_tables;
+
+    system_table		= (efi_system_table_t*)mach_bp->efi_sys_tbl;
+    num_config_tables	= system_table->nr_tables;
+    config_tables		= (efi_config_table_t*)system_table->tables;
+
+    // Let's see what config tables the efi firmware passed to us.
+    for (i = 0; i < num_config_tables; i++) {
+        if (efi_guidcmp(config_tables[i].guid, MPS_TABLE_GUID) == 0) {
+            efitab.mps = (void*)config_tables[i].table;
+            printk(" MPS=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, ACPI_20_TABLE_GUID) == 0) {
+            efitab.acpi20 = (void*)config_tables[i].table;
+            printk(" ACPI 2.0=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, ACPI_TABLE_GUID) == 0) {
+            efitab.acpi = (void*)config_tables[i].table;
+            printk(" ACPI=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, SMBIOS_TABLE_GUID) == 0) {
+            efitab.smbios = (void*) config_tables[i].table;
+            printk(" SMBIOS=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, HCDP_TABLE_GUID) == 0) {
+            //efi.hcdp = (void*)config_tables[i].table;
+            printk(" HCDP=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, UGA_IO_PROTOCOL_GUID) == 0) {
+            //efi.uga = (void*)config_tables[i].table;
+            printk(" UGA=0x%lx ", config_tables[i].table);
+        }
+    }
+    printk("\n");
+
+    // rsdp_low_mem is unsigned long so alignment below works
+    unsigned long		rsdp_low_mem   = 0xF8000;
+    unsigned long		smbios_low_mem = 0xF8100;
+    //
+    printk("Cloning ACPI entry from 0x%08X to 0x%lX...\n", efitab.acpi20, rsdp_low_mem);
+    // We need at copy the RSDP down low so linux can find it
+    // copy RSDP table entry from efi location to low mem location
+    memcpy((void*)rsdp_low_mem, efitab.acpi20, sizeof(acpi_rsdp_t) );
+
+    printk("Cloning SMBIOS entry from 0x%08X to 0x%lX...\n", efitab.smbios, smbios_low_mem);
+    // We need at copy the SMBIOS Table Entry Point down low so linux can find it
+    // copy SMBIOS Table Entry Point from efi location to low mem location
+    memcpy((void*)smbios_low_mem, efitab.smbios, sizeof(smbios_entry_t) );
+}
+
+
 // Jump to multiboot code. This is defined in multiboot.asm
 extern void JumpToMultiboot(int start, int mb_info);
+
+// Put everything together
+void load_multiboot(multiboot_info_t *mb) {
+    // Create the multiboot info structure.
+    CreateMultibootInfoStructure(mb);
+    LegacyAcpiSmbiosFix();
+
+}

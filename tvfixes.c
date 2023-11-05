@@ -82,5 +82,6 @@ char *getsectdatafromheader(struct mach_header *mhp, const char *segname, const 
     }
     *size = sp->size;
     //
+    printk("@ 0x%08X size %i\n", sp->addr, sp->size);
     return ((char *) (sp->addr));
 }

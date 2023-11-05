@@ -28,7 +28,6 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
     printk("Command line args: %s\n", BootStruct->CommandLine);
     // Find the location of the embedded stage2 loader in the mach-o header.
     Stage2Ptr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__stage2", &Stage2Len);
-    printk("@ 0x%08X size %i\n", Stage2Ptr, Stage2Len);
 
     // Copy the stage2 file to the stage2 location (1M).
     printk("Copying stage2 to 0x%08X...", Stage2Location);
@@ -39,15 +38,7 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
     printk("Copying boot struct to 0x%08X...", BootStructLocation);
     memcpy((void *) BootStructLocation, BootStruct, sizeof(HandoffBootStruct));
     printk("done.\n");
-    CreateMultibootInfoStructure(mb);
-    PrintMultibootMemoryMap(mb);
-
-    // testing uefi memory map stuff out
-    printk("EFI Memory map ptr: 0x%08X\n", mach_bp->efi_mem_map);
-    printk("EFI Memory map size: 0x%08X\n", mach_bp->efi_mem_map_size);
-    printk("EFI Memory descriptor size: %i\n", mach_bp->efi_mem_desc_size);
-    printk("EFI Memory descriptor version: 0x%08X\n", mach_bp->efi_mem_desc_ver);
-    printk("EFI Memory descriptor type size: %i\n", sizeof(efi_memory_desc_t));
+    load_multiboot(mb);
 
     fail();
     // Jump to stage2 code

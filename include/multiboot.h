@@ -203,10 +203,15 @@ struct multiboot_info
   multiboot_uint8_t framebuffer_type;
 
   // Unofficial AppleTV-specific extensions.
-  multiboot_uint32_t efi_runtime_services; // Pointer to EFI runtime services.
+  multiboot_uint32_t efi_system_table; // Pointer to EFI system table.
   multiboot_uint32_t efi_memory_map_addr; // Pointer to EFI memory map.
   multiboot_uint32_t efi_memory_map_size; // Size of EFI memory map.
   multiboot_uint32_t efi_memory_descriptor_size; // Size of each EFI memory descriptor.
+
+  multiboot_uint32_t appletv_kernel_base; // Base of mach_kernel
+  multiboot_uint32_t appletv_kernel_size; // Size of mach_kernel + UEFI space
+  multiboot_uint32_t appletv_kernel_end; // Base + Size
+
 
   union
   {

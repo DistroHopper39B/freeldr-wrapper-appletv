@@ -781,4 +781,12 @@ efi_guidcmp (efi_guid_t left, efi_guid_t right)
 	return memcmp(&left, &right, sizeof (efi_guid_t));
 }
 
+extern struct efi_tables {
+    void *mps;
+    void *acpi;
+    void *acpi20;
+    void *smbios;
+    void *uga;
+} efi_tables_t;
+
 #endif
