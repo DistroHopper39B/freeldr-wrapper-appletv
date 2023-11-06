@@ -7,8 +7,8 @@
 #include <atvlib.h>
 #include <multiboot.h>
 
-//multiboot_info_t *mb;
-u8 *MultibootPtrOrig = NULL;
+multiboot_info_t *multibootInfo;
+u8 *MultibootExecutablePtr = NULL;
 u32 MultibootLen = 0;
 
 #define MULTIBOOT_FLAGS ( MULTIBOOT_INFO_BOOTDEV | MULTIBOOT_INFO_CMDLINE | \
@@ -279,7 +279,69 @@ void PrintMultibootMemoryMap(multiboot_info_t *mb) {
 
 }
 
+/**
+ * On EFI systems, such as the Apple TV, the ACPI and SMBIOS tables are in a different location than where Windows and
+ * other legacy OSes expect them to be. We need to copy them to the correct memory regions here.
+ * This code is based on atv-bootloader.
+ */
+void LegacyAcpiSmbiosFix() {
+    efi_system_table_t	*system_table;
+    efi_config_table_t	*config_tables;
+    struct efi_tables efitab;
+    int					i, num_config_tables;
+
+    system_table		= (efi_system_table_t*)mach_bp->efi_sys_tbl;
+    num_config_tables	= system_table->nr_tables;
+    config_tables		= (efi_config_table_t*)system_table->tables;
+
+    // Let's see what config tables the efi firmware passed to us.
+    for (i = 0; i < num_config_tables; i++) {
+        if (efi_guidcmp(config_tables[i].guid, MPS_TABLE_GUID) == 0) {
+            efitab.mps = (void*)config_tables[i].table;
+            //printk(" MPS=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, ACPI_20_TABLE_GUID) == 0) {
+            efitab.acpi20 = (void*)config_tables[i].table;
+            //printk(" ACPI 2.0=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, ACPI_TABLE_GUID) == 0) {
+            efitab.acpi = (void*)config_tables[i].table;
+            //printk(" ACPI=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, SMBIOS_TABLE_GUID) == 0) {
+            efitab.smbios = (void*) config_tables[i].table;
+            //printk(" SMBIOS=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, HCDP_TABLE_GUID) == 0) {
+            //efi.hcdp = (void*)config_tables[i].table;
+            //printk(" HCDP=0x%lx ", config_tables[i].table);
+            //
+        } else if (efi_guidcmp(config_tables[i].guid, UGA_IO_PROTOCOL_GUID) == 0) {
+            //efi.uga = (void*)config_tables[i].table;
+            //printk(" UGA=0x%lx ", config_tables[i].table);
+        }
+    }
+    //printk("\n");
+
+    // rsdp_low_mem is unsigned long so alignment below works
+    unsigned long		rsdp_low_mem   = 0xF8000;
+    unsigned long		smbios_low_mem = 0xF8100;
+    //
+    printk("Cloning ACPI entry from 0x%08X to 0x%lX...", efitab.acpi20, rsdp_low_mem);
+    // We need at copy the RSDP down low so linux can find it
+    // copy RSDP table entry from efi location to low mem location
+    memcpy((void*)rsdp_low_mem, efitab.acpi20, sizeof(acpi_rsdp_t) );
+    printk("done.\n");
+
+    printk("Cloning SMBIOS entry from 0x%08X to 0x%lX...", efitab.smbios, smbios_low_mem);
+    // We need at copy the SMBIOS Table Entry Point down low so linux can find it
+    // copy SMBIOS Table Entry Point from efi location to low mem location
+    memcpy((void*)smbios_low_mem, efitab.smbios, sizeof(smbios_entry_t) );
+    printk("done.\n");
+}
+
 const char BootloaderName[] = "atv-playground";
+
 // Create Multiboot information structure to pass to bootloader.
 u32 *CreateMultibootInfoStructure(multiboot_info_t *mb) {
     //printk("Multiboot flags: 0x%08X\n", MULTIBOOT_FLAGS);
@@ -330,11 +392,11 @@ u32 *CreateMultibootInfoStructure(multiboot_info_t *mb) {
 u32 ValidateMultibootHeader() {
     u32 MultibootHeaderOffset = 0;
     // Find multiboot segment in the mach_kernel.
-    MultibootPtrOrig = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__multiboot", &MultibootLen);
+    MultibootExecutablePtr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__multiboot", &MultibootLen);
     // Look for multiboot magic number
     printk("Looking for multiboot magic number...");
     for(size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
-        u32 *current_addr = (u32 *) (MultibootPtrOrig + i);
+        u32 *current_addr = (u32 *) (MultibootExecutablePtr + i);
 
         if (*current_addr == MULTIBOOT_HEADER_MAGIC) {
             printk("Found magic number 0x%08X at offset 0x%08X\n", MULTIBOOT_HEADER_MAGIC, i);
@@ -348,73 +410,33 @@ u32 ValidateMultibootHeader() {
     return MultibootHeaderOffset;
 }
 
-/**
- * On EFI systems, such as the Apple TV, the ACPI and SMBIOS tables are in a different location than where Windows and
- * other legacy OSes expect them to be. We need to copy them to the correct memory regions here.
- * This code is based on atv-bootloader.
- */
-void LegacyAcpiSmbiosFix() {
-    efi_system_table_t	*system_table;
-    efi_config_table_t	*config_tables;
-    struct efi_tables efitab;
-    int					i, num_config_tables;
+// Load the multiboot executable to the correct location in memory and calculate the entry point.
 
-    system_table		= (efi_system_table_t*)mach_bp->efi_sys_tbl;
-    num_config_tables	= system_table->nr_tables;
-    config_tables		= (efi_config_table_t*)system_table->tables;
-
-    // Let's see what config tables the efi firmware passed to us.
-    for (i = 0; i < num_config_tables; i++) {
-        if (efi_guidcmp(config_tables[i].guid, MPS_TABLE_GUID) == 0) {
-            efitab.mps = (void*)config_tables[i].table;
-            printk(" MPS=0x%lx ", config_tables[i].table);
-            //
-        } else if (efi_guidcmp(config_tables[i].guid, ACPI_20_TABLE_GUID) == 0) {
-            efitab.acpi20 = (void*)config_tables[i].table;
-            printk(" ACPI 2.0=0x%lx ", config_tables[i].table);
-            //
-        } else if (efi_guidcmp(config_tables[i].guid, ACPI_TABLE_GUID) == 0) {
-            efitab.acpi = (void*)config_tables[i].table;
-            printk(" ACPI=0x%lx ", config_tables[i].table);
-            //
-        } else if (efi_guidcmp(config_tables[i].guid, SMBIOS_TABLE_GUID) == 0) {
-            efitab.smbios = (void*) config_tables[i].table;
-            printk(" SMBIOS=0x%lx ", config_tables[i].table);
-            //
-        } else if (efi_guidcmp(config_tables[i].guid, HCDP_TABLE_GUID) == 0) {
-            //efi.hcdp = (void*)config_tables[i].table;
-            printk(" HCDP=0x%lx ", config_tables[i].table);
-            //
-        } else if (efi_guidcmp(config_tables[i].guid, UGA_IO_PROTOCOL_GUID) == 0) {
-            //efi.uga = (void*)config_tables[i].table;
-            printk(" UGA=0x%lx ", config_tables[i].table);
-        }
-    }
-    printk("\n");
-
-    // rsdp_low_mem is unsigned long so alignment below works
-    unsigned long		rsdp_low_mem   = 0xF8000;
-    unsigned long		smbios_low_mem = 0xF8100;
-    //
-    printk("Cloning ACPI entry from 0x%08X to 0x%lX...\n", efitab.acpi20, rsdp_low_mem);
-    // We need at copy the RSDP down low so linux can find it
-    // copy RSDP table entry from efi location to low mem location
-    memcpy((void*)rsdp_low_mem, efitab.acpi20, sizeof(acpi_rsdp_t) );
-
-    printk("Cloning SMBIOS entry from 0x%08X to 0x%lX...\n", efitab.smbios, smbios_low_mem);
-    // We need at copy the SMBIOS Table Entry Point down low so linux can find it
-    // copy SMBIOS Table Entry Point from efi location to low mem location
-    memcpy((void*)smbios_low_mem, efitab.smbios, sizeof(smbios_entry_t) );
+u32 LoadMultibootExecutable() {
+    u32 MultibootHeaderOffset = ValidateMultibootHeader();
+    struct multiboot_header *MultibootHeader;
+    MultibootHeader = (struct multiboot_header *) (MultibootExecutablePtr + MultibootHeaderOffset);
+    // Copy the multiboot executable into the specified location.
+    printk("Copying multiboot executable to 0x%08X...", MultibootHeader->load_addr);
+    memcpy((void *) MultibootHeader->load_addr, MultibootExecutablePtr, MultibootLen);
+    printk("done.\n");
+    // Figure out our entry point
+    //printk("Entry point: 0x%08X\n", MultibootHeader->entry_addr);
+    return MultibootHeader->entry_addr;
 }
 
 
 // Jump to multiboot code. This is defined in multiboot.asm
-extern void JumpToMultiboot(int start, int mb_info);
+extern void JumpToMultiboot(u32 start, u32 mb_info);
 
 // Put everything together
-void load_multiboot(multiboot_info_t *mb) {
+void load_multiboot() {
     // Create the multiboot info structure.
-    CreateMultibootInfoStructure(mb);
+    CreateMultibootInfoStructure(multibootInfo);
+    // Clone the ACPI and SMBIOS entries to low memory so that Windows detects them.
     LegacyAcpiSmbiosFix();
-
+    // Load the multiboot executable into memory
+    u32 EntryPoint = LoadMultibootExecutable();
+    // Jump to assembly loader
+    JumpToMultiboot(EntryPoint, (u32) &multibootInfo);
 }

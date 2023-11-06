@@ -96,7 +96,7 @@ typedef unsigned short		multiboot_uint16_t;
 typedef unsigned int		multiboot_uint32_t;
 typedef unsigned long long	multiboot_uint64_t;
 
-struct multiboot_header
+extern struct multiboot_header
 {
   /* Must be MULTIBOOT_MAGIC - see above.  */
   multiboot_uint32_t magic;
@@ -119,7 +119,7 @@ struct multiboot_header
   multiboot_uint32_t width;
   multiboot_uint32_t height;
   multiboot_uint32_t depth;
-};
+} multiboot_header_t;
 
 /* The symbol table for a.out.  */
 struct multiboot_aout_symbol_table

@@ -27,18 +27,18 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
            BootStruct->Video.Height, BootStruct->Video.Depth);
     printk("Command line args: %s\n", BootStruct->CommandLine);
     // Find the location of the embedded stage2 loader in the mach-o header.
-    Stage2Ptr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__stage2", &Stage2Len);
+    //Stage2Ptr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__stage2", &Stage2Len);
 
     // Copy the stage2 file to the stage2 location (1M).
-    printk("Copying stage2 to 0x%08X...", Stage2Location);
-    memcpy((void *) Stage2Location, Stage2Ptr, Stage2Len);
-    printk("done.\n");
+    //printk("Copying stage2 to 0x%08X...", Stage2Location);
+    //memcpy((void *) Stage2Location, Stage2Ptr, Stage2Len);
+    //printk("done.\n");
 
     // Copy the boot struct to its location.
-    printk("Copying boot struct to 0x%08X...", BootStructLocation);
-    memcpy((void *) BootStructLocation, BootStruct, sizeof(HandoffBootStruct));
-    printk("done.\n");
-    load_multiboot(mb);
+    //printk("Copying boot struct to 0x%08X...", BootStructLocation);
+    //memcpy((void *) BootStructLocation, BootStruct, sizeof(HandoffBootStruct));
+    //printk("done.\n");
+    load_multiboot();
 
     fail();
     // Jump to stage2 code

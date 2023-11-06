@@ -17,7 +17,7 @@ extern u32 *CreateMultibootInfoStructure(multiboot_info_t *mb);
 extern void FillMultibootMemoryMap(multiboot_info_t *mb);
 extern void PrintMultibootMemoryMap(multiboot_info_t *mb);
 extern u32 ValidateMultibootHeader();
-extern void load_multiboot(multiboot_info_t *mb);
+extern void load_multiboot();
 
 // from assembly
 extern void fail();
