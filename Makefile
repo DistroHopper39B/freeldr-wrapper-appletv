@@ -18,9 +18,6 @@ else
 	LD := ld
 endif
 
-# Embedded stage2 executable path
-STAGE2_PATH=stage2_example/stage2.bin
-
 # Flags for mach-o linker
 LDFLAGS := -static -force_cpusubtype_ALL \
                -segalign 0x4000 -segaddr __TEXT 0x00400000 \
@@ -30,8 +27,7 @@ LDFLAGS := -static -force_cpusubtype_ALL \
                -sectcreate __PRELINK __text /dev/null \
                -sectcreate __PRELINK __symtab /dev/null \
                -sectcreate __PRELINK __info /dev/null \
-               -sectcreate __TEXT __stage2 $(STAGE2_PATH) \
-               -sectcreate __TEXT __multiboot freeldr.sys \
+               -sectcreate __TEXT __freeldr freeldr.sys \
 
 # Include directories for headers
 INCLUDE_DIR = include
@@ -39,7 +35,7 @@ INCLUDE_DIR = include
 CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 --target=$(TARGET) -isysroot $(SYSROOT) -Iinclude
 ASM_FLAGS := -fmacho32
 
-OBJS = start.o console.o tvfixes.o utils.o vsprintf.o playground.o multiboot_loader.o multiboot.o
+OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o
 
 %.o: %.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@

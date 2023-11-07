@@ -5,22 +5,75 @@
  */
 
 #include <atvlib.h>
-#include <multiboot.h>
 
-multiboot_info_t *multibootInfo;
-u8 *MultibootExecutablePtr = NULL;
-u32 MultibootLen = 0;
-
-#define MULTIBOOT_FLAGS ( MULTIBOOT_INFO_BOOTDEV | MULTIBOOT_INFO_CMDLINE | \
-MULTIBOOT_INFO_MEM_MAP | MULTIBOOT_INFO_BOOT_LOADER_NAME | MULTIBOOT_INFO_FRAMEBUFFER_INFO)
+handoff_boot_info *handoffBootInfo;
+u8 *FreeldrPtr = NULL;
+u32 FreeldrLen = 0;
 
 #define MULTIBOOT_SEARCH 8192
+
+const struct section *getsectbynamefromheader(struct mach_header *mhp, const char *segname, const char *sectname)
+{
+    struct segment_command *sgp;
+    struct section         *sp;
+    long                   i, j;
+
+    //printk("getsectbynamefromheader\n");
+    sgp = (struct segment_command *) ((char *) mhp + sizeof(struct mach_header));
+    for (i = 0; i < mhp->ncmds; i++) {
+        if (sgp->cmd == LC_SEGMENT) {
+            //printk("sgp->segname = %s, matching to %s.\n", sgp->segname, segname);
+
+            //if (strncmp(sgp->segname, segname, sizeof(sgp->segname)) == 0 || mhp->filetype == MH_OBJECT) {
+            if (strncmp(sgp->segname, segname, strlen(sgp->segname)) == 0 || mhp->filetype == MH_OBJECT) {
+                sp = (struct section *) ((char *) sgp + sizeof(struct segment_command));
+                for (j = 0; j < sgp->nsects; j++) {
+                    // if (strncmp(sp->sectname, sectname, sizeof(sp->sectname)) == 0 &&
+                    //  strncmp(sp->segname,  segname,  sizeof(sp->segname)) == 0) {
+                    if (strncmp(sp->sectname, sectname, strlen(sp->sectname)) == 0 &&
+                        strncmp(sp->segname, segname, strlen(sp->segname)) == 0) {
+                        printk("Found %s,%s ", segname, sectname);
+                        return (sp);
+                    }
+                    //
+                    sp = (struct section *)((char *) sp + sizeof(struct section));
+                }
+            }
+        }
+        sgp = (struct segment_command *)((char *)sgp + sgp->cmdsize);
+    }
+    printk("FATAL: Could not find %s,%s", segname, sectname);
+    fail();
+    //
+    return ((struct section *) 0);
+}
+/**********************************************************************/
+// This routine returns the a pointer to the data for the named section in the
+// named segment if it exist in the mach header passed to it.  Also it returns
+// the size of the section data indirectly through the pointer size.  Otherwise
+//  it returns zero for the pointer and the size.
+char *getsectdatafromheader(struct mach_header *mhp, const char *segname, const char *sectname, unsigned long *size)
+{
+    const struct section	*sp;
+
+    // printk("getsectdatafromheader\n");
+    sp = getsectbynamefromheader(mhp, segname, sectname);
+    if (sp == (struct section *) 0) {
+        *size = 0;
+        return ((char*) 0);
+    }
+    *size = sp->size;
+    //
+    printk("@ 0x%08X size %i\n", sp->addr, sp->size);
+    return ((char *) (sp->addr));
+}
+
 /**
  * Convert EFI memory map to Multiboot memory map to be passed to freeldr.
  * This code is based on a Linux kernel patch submitted by Edgar Hucek and modified for use with a Multiboot
  * memory map.
  */
-void quirk_fixup_efi_memmap(multiboot_info_t *mb)
+void quirk_fixup_efi_memmap(handoff_boot_info *handoff)
 {
     /* November 26, 2007 -- Scott Davilla (davilla@4pi.com)
       The appletv efi firmware has a bug that effects linux kernel when
@@ -34,7 +87,7 @@ void quirk_fixup_efi_memmap(multiboot_info_t *mb)
 
     bgn_match = end_match = -1;
 
-    num_maps = mb->efi_memory_map_size/mb->efi_memory_descriptor_size;
+    num_maps = handoff->efi_map.size / handoff->efi_map.descriptor_size;
 
     ChangeColors(0xFFFF00FF, 0x00000000);
     printk("[QUIRK] Fixing EFI memory map...\n");
@@ -43,7 +96,7 @@ void quirk_fixup_efi_memmap(multiboot_info_t *mb)
     // these are the two EFI_RUNTIME_SERVICES_CODE and one EFI_RUNTIME_SERVICES_DATA
     // memmap sections. This routine assumes that the sections will appear in order
     // which they seem to always do for the appleTV
-    for (i = 0, p = (efi_memory_desc_t*)mb->efi_memory_map_addr; i < num_maps; i++) {
+    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.addr; i < num_maps; i++) {
         md = p;
 
         bgn = md->phys_addr;
@@ -63,10 +116,10 @@ void quirk_fixup_efi_memmap(multiboot_info_t *mb)
 
                 break;
         }
-        p = NextEFIMemoryDescriptor(p, mb->efi_memory_descriptor_size);
+        p = NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
     }
 
-    for (i = 0, p = (efi_memory_desc_t*)mb->efi_memory_map_addr; i < num_maps; i++) {
+    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.addr; i < num_maps; i++) {
 
         md = p;
 
@@ -101,10 +154,10 @@ void quirk_fixup_efi_memmap(multiboot_info_t *mb)
             md->num_pages = new_pages;
         }
 
-        p = NextEFIMemoryDescriptor(p, mb->efi_memory_descriptor_size);
+        p = NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
     }
 
-    for (i = 0, p = (efi_memory_desc_t*)mb->efi_memory_map_addr; i < num_maps; i++) {
+    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.descriptor_size; i < num_maps; i++) {
         UINT64   target;
 
         target = 0x025AE000;
@@ -129,14 +182,14 @@ void quirk_fixup_efi_memmap(multiboot_info_t *mb)
             md->num_pages = new_pages;
         }
 
-        p = NextEFIMemoryDescriptor(p, mb->efi_memory_descriptor_size);
+        p = NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
     }
     printk("[QUIRK] Fixup complete.\n");
     ChangeColors(0xFFFFFFFF, 0x00000000);
 }
 
 // Add memory region to the multiboot memory map.
-void AddMemoryRegion(struct multiboot_mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type) {
+void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type) {
 
     u32 x = *NumberOfEntries;
 
@@ -158,17 +211,17 @@ void AddMemoryRegion(struct multiboot_mmap_entry *map, u32 *NumberOfEntries, u64
 }
 
 // Convert EFI memory map to Multiboot memory map.
-void FillMultibootMemoryMap(multiboot_info_t *mb) {
+void FillMultibootMemoryMap(handoff_boot_info *handoff) {
     u32 EfiNumberOfEntries, MultibootNumberOfEntries = 0, i;
     u64 start, end, size;
     efi_memory_desc_t *md, *p;
-    struct multiboot_mmap_entry *MultibootMapEntry;
+    struct mmap_entry *MultibootMapEntry;
 
-    EfiNumberOfEntries = mb->efi_memory_map_size / mb->efi_memory_descriptor_size;
-    //printk("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
-    MultibootMapEntry = (struct multiboot_mmap_entry *) mb->mmap_addr;
+    EfiNumberOfEntries = handoff->efi_map.size / handoff->efi_map.descriptor_size;
+    printk("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
+    MultibootMapEntry = (struct mmap_entry *) handoff->multiboot_map.addr;
 
-    for(i = 0, p = (efi_memory_desc_t *) mb->efi_memory_map_addr; i < EfiNumberOfEntries; i++) {
+    for(i = 0, p = (efi_memory_desc_t *) handoff->efi_map.addr; i < EfiNumberOfEntries; i++) {
         md = p;
         switch (md->type) {
             // ACPI tables -- to be preserved by loader/OS until ACPI is enable
@@ -240,19 +293,20 @@ void FillMultibootMemoryMap(multiboot_info_t *mb) {
                                 MULTIBOOT_MEMORY_RESERVED);
                 break;
         }
-        p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, mb->efi_memory_descriptor_size);
+        p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
     }
-    //printk("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
-    mb->mmap_length = sizeof(struct multiboot_mmap_entry) * MultibootNumberOfEntries;
+    printk("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
+    handoff->multiboot_map.size = sizeof(struct mmap_entry) * MultibootNumberOfEntries;
+    handoff->multiboot_map.entries = MultibootNumberOfEntries;
 }
 
-void PrintMultibootMemoryMap(multiboot_info_t *mb) {
+void PrintMultibootMemoryMap(handoff_boot_info *handoff) {
     int	i;
-    struct multiboot_mmap_entry *MultibootMapEntry;
-    MultibootMapEntry = (struct multiboot_mmap_entry *) mb->mmap_addr;
+    struct mmap_entry *MultibootMapEntry;
+    MultibootMapEntry = (struct mmap_entry *) handoff->multiboot_map.addr;
 
 
-    for (i = 0; i < mb->mmap_length / sizeof(struct multiboot_mmap_entry); i++) {
+    for (i = 0; i < handoff->multiboot_map.entries; i++) {
         printk("%s: 0x%08X%08X - 0x%08X%08X ", "Multiboot Memory Map",
                hi32( MultibootMapEntry[i].addr ),
                lo32( MultibootMapEntry[i].addr ),
@@ -343,100 +397,86 @@ void LegacyAcpiSmbiosFix() {
 const char BootloaderName[] = "atv-playground";
 
 // Create Multiboot information structure to pass to bootloader.
-u32 *CreateMultibootInfoStructure(multiboot_info_t *mb) {
-    //printk("Multiboot flags: 0x%08X\n", MULTIBOOT_FLAGS);
-    mb->flags = MULTIBOOT_FLAGS;
 
+// Create boot struct for use with freeldr.
+u32 *CreateBootInfo(handoff_boot_info *h) {
+    h->magic = ATV_LOADER_MAGIC_NUMBER;
 
-    mb->boot_device = 0; // The root partition should always be 0, but I don't know if I will handle this
+    h->cmdline_ptr = (u32) mach_bp->cmdline;
 
-    mb->cmdline = (multiboot_uint32_t) mach_bp->cmdline;
+    h->efi_map.addr = mach_bp->efi_mem_map;
+    h->efi_map.size = mach_bp->efi_mem_map_size;
+    h->efi_map.descriptor_size = mach_bp->efi_mem_desc_size;
+    h->efi_map.descriptor_version = mach_bp->efi_mem_desc_ver;
 
-    // Setup memory map (including EFI memory map)
-    mb->efi_memory_map_addr = mach_bp->efi_mem_map;
-    mb->efi_memory_map_size = mach_bp->efi_mem_map_size;
-    mb->efi_memory_descriptor_size = mach_bp->efi_mem_desc_size;
-    quirk_fixup_efi_memmap(mb);
-    mb->mmap_addr = 0x003F0000;
-    FillMultibootMemoryMap(mb); // mb->mmap_length
+    quirk_fixup_efi_memmap(h);
+    h->multiboot_map.addr = 0x003F0000;
+    FillMultibootMemoryMap(h);
+    // PrintMultibootMemoryMap(h);
 
-    mb->drives_length = 0;
-    mb->drives_addr = 0;
+    h->video.base = mach_bp->video.addr;
+    h->video.pitch = mach_bp->video.rowb;
+    h->video.width = mach_bp->video.width;
+    h->video.height = mach_bp->video.height;
+    h->video.depth = mach_bp->video.depth;
 
-    mb->config_table = 0;
+    h->efi_system_table_ptr = (u32) mach_bp->efi_sys_tbl;
 
-    mb->boot_loader_name = (multiboot_uint32_t) BootloaderName; // needs to be a pointer
+    h->kernel.base_addr = mach_bp->kaddr;
+    h->kernel.size = mach_bp->ksize;
+    h->kernel.end = (mach_bp->kaddr + mach_bp->ksize);
 
-    mb->apm_table = 0; // No APM BIOS present
-
-    mb->framebuffer_addr = mach_bp->video.addr;
-    mb->framebuffer_pitch = mach_bp->video.rowb;
-    mb->framebuffer_width = mach_bp->video.width;
-    mb->framebuffer_height = mach_bp->video.height;
-    mb->framebuffer_bpp = mach_bp->video.depth;
-    mb->framebuffer_type = MULTIBOOT_FRAMEBUFFER_TYPE_EFI;
-
-    mb->efi_system_table = (multiboot_uint32_t) mach_bp->efi_sys_tbl;
-
-    mb->appletv_kernel_base = mach_bp->kaddr;
-    mb->appletv_kernel_size = mach_bp->ksize;
-    mb->appletv_kernel_end = (mach_bp->kaddr + mach_bp->ksize);
-
-    //printk("Kernel base: 0x%08X\n", mb->appletv_kernel_base);
-    //printk("Kernel size: %i\n", mb->appletv_kernel_size);
-    //printk("Kernel end: 0x%08X\n", mb->appletv_kernel_end);
-    return (u32 *) mb;
+    return (u32 *) h;
 }
 
-// Validate executable header to be Multiboot-compatible and have correct flags.
-u32 ValidateMultibootHeader() {
-    u32 MultibootHeaderOffset = 0;
-    // Find multiboot segment in the mach_kernel.
-    MultibootExecutablePtr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__multiboot", &MultibootLen);
-    // Look for multiboot magic number
-    printk("Looking for multiboot magic number...");
-    for(size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
-        u32 *current_addr = (u32 *) (MultibootExecutablePtr + i);
 
-        if (*current_addr == MULTIBOOT_HEADER_MAGIC) {
-            printk("Found magic number 0x%08X at offset 0x%08X\n", MULTIBOOT_HEADER_MAGIC, i);
-            MultibootHeaderOffset = i;
+// Validate executable header to be Freeldr
+u32 ValidateFreeldr() {
+    u32 FreeldrOffset = 0;
+    // Find Freeldr segment in the mach_kernel.
+    FreeldrPtr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__freeldr", &FreeldrLen);
+    // Look for Freeldr magic number
+    printk("Looking for FreeLDR magic number...");
+    for(size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
+        u32 *current_addr = (u32 *) (FreeldrPtr + i);
+
+        if (*current_addr == FREELDR_MAGIC_NUMBER) {
+            printk("Found magic number 0x%08X at offset 0x%08X\n", FREELDR_MAGIC_NUMBER, i);
+            FreeldrOffset = i;
         }
     }
-    if(MultibootHeaderOffset == 0) {
-        printk("FATAL: Could not find magic number 0x%08X!\n", MULTIBOOT_HEADER_MAGIC);
+    if(FreeldrOffset == 0) {
+        printk("FATAL: Could not find magic number 0x%08X!\n", FREELDR_MAGIC_NUMBER);
         fail();
     }
-    return MultibootHeaderOffset;
+    return FreeldrOffset;
 }
 
-// Load the multiboot executable to the correct location in memory and calculate the entry point.
+// Load Freeldr to the correct location in memory and calculate the entry point.
 
-u32 LoadMultibootExecutable() {
-    u32 MultibootHeaderOffset = ValidateMultibootHeader();
-    struct multiboot_header *MultibootHeader;
-    MultibootHeader = (struct multiboot_header *) (MultibootExecutablePtr + MultibootHeaderOffset);
-    // Copy the multiboot executable into the specified location.
-    printk("Copying multiboot executable to 0x%08X...", MultibootHeader->load_addr);
-    memcpy((void *) MultibootHeader->load_addr, MultibootExecutablePtr, MultibootLen);
+u32 LoadFreeldr() {
+    u32 FreeldrOffset = ValidateFreeldr();
+    freeldr_hdr *hdr;
+    hdr = (freeldr_hdr *) (FreeldrPtr + FreeldrOffset);
+    // Copy FreeLDR into the specified location.
+    printk("Copying FreeLDR to 0x%08X...", hdr->load_addr);
+    memcpy((void *) hdr->load_addr, FreeldrPtr, FreeldrLen);
     printk("done.\n");
-    // Figure out our entry point
-    //printk("Entry point: 0x%08X\n", MultibootHeader->entry_addr);
-    return MultibootHeader->entry_addr;
+    return hdr->entry_point;
 }
 
 
-// Jump to multiboot code. This is defined in multiboot.asm
-extern void JumpToMultiboot(u32 start, u32 mb_info);
+// Jump to freeldr code. This is defined in jump.asm
+extern void JumpToFreeldr(u32 start, u32 info);
 
 // Put everything together
-void load_multiboot() {
-    // Create the multiboot info structure.
-    CreateMultibootInfoStructure(multibootInfo);
+void load_freeldr() {
+    // Create the info structure.
+    CreateBootInfo(handoffBootInfo);
     // Clone the ACPI and SMBIOS entries to low memory so that Windows detects them.
     LegacyAcpiSmbiosFix();
-    // Load the multiboot executable into memory
-    u32 EntryPoint = LoadMultibootExecutable();
+    // Load freeldr into memory
+    u32 EntryPoint = LoadFreeldr();
     // Jump to assembly loader
-    JumpToMultiboot(EntryPoint, (u32) &multibootInfo);
+    JumpToFreeldr(EntryPoint, (u32) &handoffBootInfo);
 }

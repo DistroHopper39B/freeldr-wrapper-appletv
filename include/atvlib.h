@@ -6,18 +6,11 @@
 #include "atvutils.h"
 #include "console.h"
 #include "debug.h"
-#include "handoff_struct.h"
+#include "handoff.h"
 #include <efi.h>
-#include "multiboot.h"
 
 extern int vsprintf(char *buf, const char *fmt, va_list args);
-extern void CreateNewBootStruct();
-extern HandoffBootStruct *BootStruct;
-extern u32 *CreateMultibootInfoStructure(multiboot_info_t *mb);
-extern void FillMultibootMemoryMap(multiboot_info_t *mb);
-extern void PrintMultibootMemoryMap(multiboot_info_t *mb);
-extern u32 ValidateMultibootHeader();
-extern void load_multiboot();
+extern void load_freeldr();
 
 // from assembly
 extern void fail();
