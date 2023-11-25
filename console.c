@@ -14,6 +14,7 @@ volatile u32 TextForegroundColor = 0xFFFFFFFF;
 volatile u32 VideoCursorX;
 volatile u32 VideoCursorY;
 
+extern void PrintToSerial(const char *szBuffer);
 
 // Clear screen function
 void ClearScreen(int alpha) {
@@ -26,6 +27,7 @@ void ClearScreen(int alpha) {
 void SetupScreen() {
     VideoCursorX = VideoCursorOrigX;
     VideoCursorY = VideoCursorOrigY;
+    PrintToSerial("\n");
 }
 
 // Pixel placement code. The top left corner is located at (1, 1)
@@ -80,23 +82,15 @@ void ChangeColors(u32 Foreground, u32 Background) {
     TextForegroundColor = Foreground;
     TextBackgroundColor = Background;
 }
-// Serial port code
-void outb(uint16_t port, uint8_t val) {
-    __asm__ __volatile__ ( "outb %0, %1" : : "a"(val), "Nd"(port) );
-}
 
-// inb asm->c (not used yet)
-uint8_t inb(uint16_t port) {
-    uint8_t ret;
-    __asm__ __volatile__ ( "inb %1, %0" : "=a"(ret) : "Nd"(port) );
-    return ret;
-}
 // Print buffer to COM1
 void PrintToSerial(const char *szBuffer) {
     for(int i = 0; szBuffer[i] != '\0'; i++) {
         outb(COM1, szBuffer[i]);
     }
 }
+
+// print only if SERIAL_PRINT and SCREEN_PRINT are enabled
 void printk(const char *szFormat, ...) {
     char szBuffer[512 * 2];
     u16 wLength = 0;
@@ -110,8 +104,28 @@ void printk(const char *szFormat, ...) {
     if (wLength > (sizeof(szBuffer) - 1))
         wLength = sizeof(szBuffer) - 1;
     szBuffer[wLength] = '\0';
+#ifdef SCREEN_PRINT
     PrintToScreen(szBuffer);
-    if(SERIAL_ENABLE == 1) {
-        PrintToSerial(szBuffer);
-    }
+#endif
+#ifdef SERIAL_PRINT
+    PrintToSerial(szBuffer);
+#endif
+}
+
+// print always
+void printk_always(const char *szFormat, ...) {
+    char szBuffer[512 * 2];
+    u16 wLength = 0;
+    va_list argList;
+
+    va_start(argList, szFormat);
+    wLength = (u16) vsprintf(szBuffer, szFormat, argList);
+    va_end(argList);
+
+    szBuffer[sizeof(szBuffer) - 1] = 0;
+    if (wLength > (sizeof(szBuffer) - 1))
+        wLength = sizeof(szBuffer) - 1;
+    szBuffer[wLength] = '\0';
+    PrintToScreen(szBuffer);
+    PrintToSerial(szBuffer);
 }

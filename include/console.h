@@ -9,6 +9,7 @@ extern void ClearScreen(int alpha);
 extern void SetupScreen();
 extern void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue);
 extern void printk(const char *szFormat, ...);
+extern void printk_always(const char *szFormat, ...);
 extern void ChangeColors(u32 Foreground, u32 Background);
 extern volatile u32 VideoCursorX;
 extern volatile u32 VideoCursorY;

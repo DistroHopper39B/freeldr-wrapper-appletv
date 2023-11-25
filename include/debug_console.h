@@ -6,7 +6,9 @@
 #ifndef PLAYGROUND_DEBUG_H
 #define PLAYGROUND_DEBUG_H
 
+#define SERIAL_PRINT
+//#define SCREEN_PRINT
+
 #define COM1 0x3F8
-#define SERIAL_ENABLE 1
 
 #endif //PLAYGROUND_DEBUG_H

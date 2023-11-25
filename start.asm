@@ -1,6 +1,6 @@
 ; Apple TV asm entry point.
 
-extern _printk
+extern _printk_always
 extern _playground_start
 
 SECTION .text
@@ -17,10 +17,10 @@ start:
 _fail:
     ; Print error to the screen. We should never hit this case.
     push msg_halted
-    call _printk
+    call _printk_always
     ; Halt the CPU
     hlt
 
 
 SECTION .data
-    msg_halted db 0x0A, "FATAL: Could not load stage2! System halted.", 0x0A, 0
+    msg_halted db "FATAL: Could not load FreeLoader! System halted.", 0x0A, 0

@@ -20,10 +20,10 @@ endif
 
 # Flags for mach-o linker
 LDFLAGS := -static -force_cpusubtype_ALL \
-               -segalign 0x4000 -segaddr __TEXT 0x00400000 \
-               -sectalign __TEXT __text 0x4000 \
-               -sectalign __DATA __common 0x4000 \
-               -sectalign __DATA __bss 0x4000 \
+               -segalign 0x1000 -segaddr __TEXT 0x00400000 \
+               -sectalign __TEXT __text 0x1000 \
+               -sectalign __DATA __common 0x1000 \
+               -sectalign __DATA __bss 0x1000 \
                -sectcreate __PRELINK __text /dev/null \
                -sectcreate __PRELINK __symtab /dev/null \
                -sectcreate __PRELINK __info /dev/null \
@@ -35,7 +35,7 @@ INCLUDE_DIR = include
 CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 --target=$(TARGET) -isysroot $(SYSROOT) -Iinclude
 ASM_FLAGS := -fmacho32
 
-OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o
+OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o hardware.o
 
 %.o: %.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@

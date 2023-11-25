@@ -42,7 +42,8 @@ const struct section *getsectbynamefromheader(struct mach_header *mhp, const cha
         }
         sgp = (struct segment_command *)((char *)sgp + sgp->cmdsize);
     }
-    printk("FATAL: Could not find %s,%s", segname, sectname);
+    ChangeColors(0xFFFF0000, 0x00000000);
+    printk_always("FATAL: Could not find FreeLoader in executable!\n", segname, sectname);
     fail();
     //
     return ((struct section *) 0);
@@ -138,15 +139,15 @@ void quirk_fixup_efi_memmap(handoff_boot_info *handoff)
         if ( (bgn == bgn_match) & (end >= end_match) ) {
             UINT64		new_bgn, new_end, new_pages;
 
-            printk("[QUIRK] Found memory overlap\n");
-            printk("[QUIRK] Memory range=[0x%08X%08X-", hi32(bgn), lo32(bgn) );
-            printk("0x%08X%08X]\n", hi32(end), lo32(end) );
+            // printk("[QUIRK] Found memory overlap\n");
+            // printk("[QUIRK] Memory range=[0x%08X%08X-", hi32(bgn), lo32(bgn) );
+            // printk("0x%08X%08X]\n", hi32(end), lo32(end) );
 
             new_bgn = end_match;
             new_pages = (end - new_bgn) / (1 << EFI_PAGE_SHIFT);
 
             new_end = new_bgn + (new_pages << EFI_PAGE_SHIFT);
-            printk("[QUIRK] Fixing memory overlap\n");
+            printk("[QUIRK] Fixing memory overlap...\n");
             printk("[QUIRK] Memory range=[0x%08X%08X-", hi32(new_bgn), lo32(new_bgn) );
             printk("0x%08X%08X]\n", hi32(new_end), lo32(new_end) );
 
@@ -174,7 +175,7 @@ void quirk_fixup_efi_memmap(handoff_boot_info *handoff)
             new_pages = (target - new_bgn) / (1 << EFI_PAGE_SHIFT);
 
             new_end = new_bgn + (new_pages << EFI_PAGE_SHIFT);
-            printk("[QUIRK] Fixing memory target\n");
+            printk("[QUIRK] Fixing memory target...\n");
 
             md->phys_addr = new_bgn;
             md->num_pages = new_pages;
@@ -192,11 +193,6 @@ void quirk_fixup_efi_memmap(handoff_boot_info *handoff)
 void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type) {
 
     u32 x = *NumberOfEntries;
-
-    if(x > 128) {
-        printk("I don't know what you did\n");
-        fail();
-    }
 
     if ((x > 0) && map[x-1].addr + map[x-1].len == addr
         && map[x-1].type == type)
@@ -218,7 +214,7 @@ void FillMultibootMemoryMap(handoff_boot_info *handoff) {
     struct mmap_entry *MultibootMapEntry;
 
     EfiNumberOfEntries = handoff->efi_map.size / handoff->efi_map.descriptor_size;
-    printk("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
+    //printk("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
     MultibootMapEntry = (struct mmap_entry *) handoff->multiboot_map.addr;
 
     for(i = 0, p = (efi_memory_desc_t *) handoff->efi_map.addr; i < EfiNumberOfEntries; i++) {
@@ -286,7 +282,7 @@ void FillMultibootMemoryMap(handoff_boot_info *handoff) {
                 break;
             default:
                 /* We should not hit this case */
-                printk("ATV: default add_memory_region, should not see this\n");
+                printk("ERROR: default add_memory_region, should not see this\n");
                 AddMemoryRegion(MultibootMapEntry, &MultibootNumberOfEntries,
                                 md->phys_addr,
                                 md->num_pages << EFI_PAGE_SHIFT,
@@ -295,7 +291,7 @@ void FillMultibootMemoryMap(handoff_boot_info *handoff) {
         }
         p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
     }
-    printk("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
+    // printk("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
     handoff->multiboot_map.size = sizeof(struct mmap_entry) * MultibootNumberOfEntries;
     handoff->multiboot_map.entries = MultibootNumberOfEntries;
 }
@@ -394,10 +390,6 @@ void LegacyAcpiSmbiosFix() {
     printk("done.\n");
 }
 
-const char BootloaderName[] = "atv-playground";
-
-// Create Multiboot information structure to pass to bootloader.
-
 // Create boot struct for use with freeldr.
 u32 *CreateBootInfo(handoff_boot_info *h) {
     h->magic = ATV_LOADER_MAGIC_NUMBER;
@@ -412,7 +404,7 @@ u32 *CreateBootInfo(handoff_boot_info *h) {
     quirk_fixup_efi_memmap(h);
     h->multiboot_map.addr = 0x003F0000;
     FillMultibootMemoryMap(h);
-    // PrintMultibootMemoryMap(h);
+    PrintMultibootMemoryMap(h);
 
     h->video.base = mach_bp->video.addr;
     h->video.pitch = mach_bp->video.rowb;
@@ -430,36 +422,37 @@ u32 *CreateBootInfo(handoff_boot_info *h) {
 }
 
 
-// Validate executable header to be Freeldr
+// Validate executable header to be FreeLoader
 u32 ValidateFreeldr() {
     u32 FreeldrOffset = 0;
-    // Find Freeldr segment in the mach_kernel.
+    // Find FreeLoader segment in the mach_kernel.
     FreeldrPtr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__freeldr", &FreeldrLen);
-    // Look for Freeldr magic number
-    printk("Looking for FreeLDR magic number...");
+    // Look for FreeLoader magic number
+    printk("Looking for FreeLoader magic number...");
     for(size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
         u32 *current_addr = (u32 *) (FreeldrPtr + i);
 
         if (*current_addr == FREELDR_MAGIC_NUMBER) {
-            printk("Found magic number 0x%08X at offset 0x%08X\n", FREELDR_MAGIC_NUMBER, i);
+            printk("Found magic number 0x%08X at offset 0x%lX\n", FREELDR_MAGIC_NUMBER, i);
             FreeldrOffset = i;
         }
     }
     if(FreeldrOffset == 0) {
-        printk("FATAL: Could not find magic number 0x%08X!\n", FREELDR_MAGIC_NUMBER);
+        ChangeColors(0xFFFF0000, 0x00000000);
+        printk_always("FATAL: Version of FreeLoader corrupted or not for Apple TV!\n");
         fail();
     }
     return FreeldrOffset;
 }
 
-// Load Freeldr to the correct location in memory and calculate the entry point.
+// Load FreeLoader to the correct location in memory and calculate the entry point.
 
 u32 LoadFreeldr() {
     u32 FreeldrOffset = ValidateFreeldr();
     freeldr_hdr *hdr;
     hdr = (freeldr_hdr *) (FreeldrPtr + FreeldrOffset);
     // Copy FreeLDR into the specified location.
-    printk("Copying FreeLDR to 0x%08X...", hdr->load_addr);
+    printk("Copying FreeLoader to 0x%08X...", hdr->load_addr);
     memcpy((void *) hdr->load_addr, FreeldrPtr, FreeldrLen);
     printk("done.\n");
     return hdr->entry_point;
@@ -478,5 +471,6 @@ void load_freeldr() {
     // Load freeldr into memory
     u32 EntryPoint = LoadFreeldr();
     // Jump to assembly loader
+    //while(1);
     JumpToFreeldr(EntryPoint, (u32) &handoffBootInfo);
 }
