@@ -90,7 +90,7 @@ void PrintToSerial(const char *szBuffer) {
     }
 }
 
-// print only if SERIAL_PRINT and SCREEN_PRINT are enabled
+// print only if SERIAL_PRINT and/or SCREEN_PRINT are enabled
 void printk(const char *szFormat, ...) {
     char szBuffer[512 * 2];
     u16 wLength = 0;

@@ -469,8 +469,8 @@ void load_freeldr() {
     // Clone the ACPI and SMBIOS entries to low memory so that Windows detects them.
     LegacyAcpiSmbiosFix();
     // Load freeldr into memory
+    printk_always("Loading FreeLoader...\n");
     u32 EntryPoint = LoadFreeldr();
     // Jump to assembly loader
-    //while(1);
     JumpToFreeldr(EntryPoint, (u32) &handoffBootInfo);
 }

@@ -18,7 +18,6 @@ void playground_start(unsigned int args) { // called by start symbol in the exec
     printk("Framebuffer info: Start 0x%08X, dimensions %ux%ux%u\n", mach_bp->video.addr, mach_bp->video.width,
            mach_bp->video.height, mach_bp->video.depth);
     printk("Command line args: %s\n", mach_bp->cmdline);
-    printk_always("Loading FreeLoader...\n");
     load_freeldr();
     fail();
 }
