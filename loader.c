@@ -458,12 +458,15 @@ u32 LoadFreeldr() {
     return hdr->entry_point;
 }
 
-
 // Jump to freeldr code. This is defined in jump.asm
 extern void JumpToFreeldr(u32 start, u32 info);
 
 // Put everything together
 void load_freeldr() {
+    // zero out low memory
+    memset((void *) 0x0000, 0x0, 0xF000);
+    // Fixup Apple TV IDE controller.
+    AppleTVFixupIdeController();
     // Create the info structure.
     CreateBootInfo(handoffBootInfo);
     // Clone the ACPI and SMBIOS entries to low memory so that Windows detects them.

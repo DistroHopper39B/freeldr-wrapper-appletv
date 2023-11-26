@@ -35,7 +35,7 @@ INCLUDE_DIR = include
 CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 --target=$(TARGET) -isysroot $(SYSROOT) -Iinclude
 ASM_FLAGS := -fmacho32
 
-OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o hardware.o
+OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o io.o pci.o
 
 %.o: %.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@
