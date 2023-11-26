@@ -458,7 +458,7 @@ u32 LoadFreeldr() {
     return hdr->entry_point;
 }
 
-// Jump to freeldr code. This is defined in jump.asm
+// Jump to freeldr code. This is defined in jump.S
 extern void JumpToFreeldr(u32 start, u32 info);
 
 // Put everything together

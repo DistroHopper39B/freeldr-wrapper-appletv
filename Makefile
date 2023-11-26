@@ -9,7 +9,6 @@ SYSROOT = /opt/cross/SDK/MacOSX10.4u.sdk
 
 # Definitions for compilers
 CC := clang
-ASM := nasm
 
 # Definitions for linker
 ifeq ($(OSTYPE),Linux)
@@ -33,12 +32,12 @@ LDFLAGS := -static -force_cpusubtype_ALL \
 INCLUDE_DIR = include
 
 CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 --target=$(TARGET) -isysroot $(SYSROOT) -Iinclude
-ASM_FLAGS := -fmacho32
+ASM_FLAGS := -DASSEMBLER $(CFLAGS)
 
 OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o io.o pci.o
 
-%.o: %.asm
-	$(ASM) $(ASM_FLAGS) $< -o $@
+%.o: %.S
+	$(CC) $(ASM_FLAGS) -c $< -o $@
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 mach_kernel: $(OBJS)
