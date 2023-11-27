@@ -5,7 +5,6 @@ OSTYPE = $(shell uname)
 
 # Target defs for Linux cross compiler.
 TARGET = i386-apple-darwin8
-SYSROOT = /opt/cross/SDK/MacOSX10.4u.sdk
 
 # Definitions for compilers
 CC := clang
@@ -31,7 +30,8 @@ LDFLAGS := -static -force_cpusubtype_ALL \
 # Include directories for headers
 INCLUDE_DIR = include
 
-CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -O3 --target=$(TARGET) -isysroot $(SYSROOT) -Iinclude
+CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -fno-builtin -O3 --target=$(TARGET) -Iinclude
+
 ASM_FLAGS := -DASSEMBLER $(CFLAGS)
 
 OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o io.o pci.o
