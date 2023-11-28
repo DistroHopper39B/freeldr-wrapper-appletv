@@ -34,7 +34,7 @@ typedef struct {
 typedef struct {
     u32 base_addr; // Base address of kernel as specified by linker argument "-segaddr __TEXT".
     u32 size; // Size of kernel + other memory we can't write to in userspace (such as UEFI BIOS information, memory maps, etc).
-    u32 end; // End of kernel. Everything past this address should always be safe to write to by userspace.
+    u32 end; // End of kernel.
 } mach_environment_params;
 
 // Multiboot/E820 memory map information.

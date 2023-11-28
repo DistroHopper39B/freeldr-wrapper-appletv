@@ -8,12 +8,12 @@ Project status as of 11/26/2023: 85% complete (ReactOS kernel loads in VirtualBo
 hardware, but hangs at the debugger because ReactOS does not yet support UEFI video. Work is
 being done on a UEFI video driver in ReactOS, but it is not yet complete.)
 
-| Portion                      | Status | Location                                                              | Notes                  |
-|------------------------------|--------|-----------------------------------------------------------------------|------------------------|
-| First stage boot loader      | 100%   | This repository                                                       | Fully complete         |
-| FreeLoader                   | 90%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | Need UEFI video driver |
-| ReactOS booting              | ??%    | [ReactOS](https://reactos.org)                                        | Need UEFI video driver |
-| Windows XP/2003 boot support | ??%    | Microsoft, I guess                                                    | Need UEFI video driver |
+| Portion                      | Status | Location                                                              | Notes                                  |
+|------------------------------|--------|-----------------------------------------------------------------------|----------------------------------------|
+| First stage boot loader      | 100%   | This repository                                                       | Fully complete                         |
+| FreeLoader                   | 95%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | UEFI video passthrough in early stages |
+| ReactOS booting              | ??%    | [ReactOS](https://reactos.org)                                        | Need UEFI video driver                 |
+| Windows XP/2003 boot support | ??%    | Microsoft, I guess                                                    | Need UEFI video driver                 |
 
 ## Prebuilt binaries
 Available when FreeLoader is complete.
