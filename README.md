@@ -1,7 +1,7 @@
 # freeldr-wrapper-appletv
 <img src="USBData/BootLogo.png" width="150" height="150"  alt="Apple TV Windows logo"/>
 
-The first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
+Wrapper and first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
 Windows to run on the Apple TV (1st Generation). See below for information on project status and instructions.
 ## Current project status
 Project status as of 11/26/2023: 85% complete (ReactOS kernel loads in VirtualBox and on real
