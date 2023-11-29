@@ -34,7 +34,7 @@ CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -fno-builtin -
 
 ASM_FLAGS := -DASSEMBLER $(CFLAGS)
 
-OBJS = start.o console.o utils.o vsprintf.o playground.o loader.o jump.o io.o pci.o
+OBJS = asm.o console.o utils.o vsprintf.o playground.o loader.o ioports.o pci.o
 
 %.o: %.S
 	$(CC) $(ASM_FLAGS) -c $< -o $@
