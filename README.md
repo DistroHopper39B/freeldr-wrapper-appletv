@@ -1,4 +1,5 @@
 # freeldr-wrapper-appletv
+## **THIS PROJECT IS NOT FINISHED OR PRODUCTION READY. DO NOT ATTEMPT TO USE THIS TO INSTALL WINDOWS ON YOUR APPLE TV. IT WILL NOT WORK.**
 <img src="USBData/BootLogo.png" width="150" height="150"  alt="Apple TV Windows logo"/>
 
 Wrapper and first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
