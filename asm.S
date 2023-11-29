@@ -1,7 +1,7 @@
 # Apple TV asm entry point and functions.
 
-.extern _printk_always
-.extern _playground_start
+.extern _printf
+.extern _c_entry
 
 .text
 .globl start
@@ -12,13 +12,13 @@ start:
     # Push bootArgs pointer from boot.efi to the stack.
     push %eax
     # Call C entry point.
-    call _playground_start
+    call _c_entry
     call _fail
 
 _fail:
     # Print error to the screen.
     push $msg_halted
-    call _printk_always
+    call _printf
     # Halt the CPU
     hlt
 

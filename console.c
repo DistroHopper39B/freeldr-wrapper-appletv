@@ -4,7 +4,7 @@
 //
 
 #include <atvlib.h>
-#include <stdarg.h>
+
 #include <font.h>
 
 const u32 VideoCursorOrigX = 1;
@@ -13,8 +13,6 @@ volatile u32 TextBackgroundColor = 0x00000000;
 volatile u32 TextForegroundColor = 0xFFFFFFFF;
 volatile u32 VideoCursorX;
 volatile u32 VideoCursorY;
-
-extern void PrintToSerial(const char *szBuffer);
 
 // Clear screen function
 void ClearScreen(int alpha) {
@@ -27,6 +25,7 @@ void ClearScreen(int alpha) {
 void SetupScreen() {
     VideoCursorX = VideoCursorOrigX;
     VideoCursorY = VideoCursorOrigY;
+    // Make serial look better
     PrintToSerial("\n");
 }
 
@@ -39,7 +38,7 @@ void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue) {
     u8 Alpha = RgbaValue & 0xFF;
     // find pixel address and correct top left pixel from (0, 0) to (1, 1)
     u32 PixelStartingAddr = mach_bp->video.addr + ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * mach_bp->video.rowb);
-    /* Apple TV linear frame buffer printing logic. Works the same as every other RGBA linear frame buffer. */
+    /* Apple TV linear frame buffer printing logic. */
     memset((void *) PixelStartingAddr, Blue, 1); // blue
     memset((void *) PixelStartingAddr + 1, Green, 1); // green
     memset((void *) PixelStartingAddr + 2, Red, 1); // red
@@ -91,7 +90,7 @@ void PrintToSerial(const char *szBuffer) {
 }
 
 // print only if SERIAL_PRINT and/or SCREEN_PRINT are enabled
-void printk(const char *szFormat, ...) {
+void debug_printf(const char *szFormat, ...) {
     char szBuffer[512 * 2];
     u16 wLength = 0;
     va_list argList;
@@ -113,7 +112,7 @@ void printk(const char *szFormat, ...) {
 }
 
 // print always
-void printk_always(const char *szFormat, ...) {
+void printf(const char *szFormat, ...) {
     char szBuffer[512 * 2];
     u16 wLength = 0;
     va_list argList;

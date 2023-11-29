@@ -7,17 +7,16 @@
 #include "console.h"
 #include "debug_console.h"
 #include "handoff.h"
-#include <efi.h>
+#include <firmware.h>
 #include "pci.h"
+#include "ioports.h"
 
-extern int vsprintf(char *buf, const char *fmt, va_list args);
-extern void load_freeldr();
-extern void outb(uint16_t port, uint8_t val);
-extern uint8_t inb(uint16_t port);
-extern void outl(uint16_t port, uint32_t val);
-extern uint32_t inl(uint16_t port);
+// from loader.c
+extern u32 *CreateBootInfo(handoff_boot_info *h);
+extern u32 LoadFreeldr();
 
 // from assembly
+extern void JumpToFreeldr(u32 start, u32 info);
 extern void fail();
 
 #endif

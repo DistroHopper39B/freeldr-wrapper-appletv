@@ -56,7 +56,7 @@
 
 #define PCI_INVALID_DEVICE 0xFFFF
 
-typedef struct _pci_slot_info {
+typedef struct _pci_device {
     u8 bus;
     u8 slot;
     u8 function;

@@ -130,7 +130,7 @@ u8 PciGetProgIf(u8 Bus, u8 Slot, u8 Func) {
 pci_slot_info *DetectPciIdeController() {
     u8 Bus, Slot, Func;
 
-    printk("PCI: Enumerating PCI bus...\n");
+    debug_printf("PCI: Enumerating PCI bus...\n");
 
     for(Bus = 0; Bus < 255; Bus++) {
         for(Slot = 0; Slot < 32; Slot++) {
@@ -138,11 +138,11 @@ pci_slot_info *DetectPciIdeController() {
                 if (PciGetVendorId(Bus, Slot, Func) != PCI_INVALID_DEVICE &&
                     PciGetClassCode(Bus, Slot, Func) == PCI_CLASS_CODE_MASS_STORAGE &&
                     PciGetSubclassCode(Bus, Slot, Func) == PCI_MASS_STORAGE_SUBCLASS_CODE_IDE_CONTROLLER) {
-                    printk("PCI: Found IDE controller at %02x:%lx.%lx [%lX:%lX] with Prog IF %02x\n",
-                           Bus, Slot, Func,
-                           PciGetVendorId(Bus, Slot, Func),
-                           PciGetDeviceId(Bus, Slot, Func),
-                           PciGetProgIf(Bus, Slot, Func));
+                    debug_printf("PCI: Found IDE controller at %02x:%lx.%lx [%lX:%lX] with Prog IF %02x\n",
+                                 Bus, Slot, Func,
+                                 PciGetVendorId(Bus, Slot, Func),
+                                 PciGetDeviceId(Bus, Slot, Func),
+                                 PciGetProgIf(Bus, Slot, Func));
                     slot->bus = Bus;
                     slot->slot = Slot;
                     slot->function = Func;
@@ -173,7 +173,7 @@ void AppleTVFixupIdeController() {
 
     if(ProgIf == 0x8A) {
         /* no work needed, expected result in virtualbox */
-        printk("PCI: Nothing to do.\n");
+        debug_printf("PCI: Nothing to do.\n");
     } else if(ProgIf == 0x8F) { // expected result on real hardware
         /* change value */
         ProgIf = 0x8A;
@@ -182,11 +182,11 @@ void AppleTVFixupIdeController() {
         PciOffsetNew = (u32)(ClassCode << 24) | (u32)(Subclass << 16) | (u32)(ProgIf << 8) | (u32)(RevId);
 
         /* write out new Prog If value */
-        printk("PCI: Writing out new Prog IF value...\n");
+        debug_printf("PCI: Writing out new Prog IF value...\n");
         PciWriteLong(slot->bus, slot->slot, slot->function, 0x8, PciOffsetNew);
     } else {
         ChangeColors(0xFFFF0000, 0x00000000);
-        printk_always("PCI: FATAL: Unsupported IDE controller!\n");
+        printf("PCI: FATAL: Unsupported IDE controller!\n");
         fail();
     }
 }

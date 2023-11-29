@@ -9,6 +9,4 @@
 #define SERIAL_PRINT
 //#define SCREEN_PRINT
 
-#define COM1 0x3F8
-
 #endif //PLAYGROUND_DEBUG_H

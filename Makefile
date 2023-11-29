@@ -30,11 +30,11 @@ LDFLAGS := -static -force_cpusubtype_ALL \
 # Include directories for headers
 INCLUDE_DIR = include
 
-CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -fno-builtin -O3 --target=$(TARGET) -Iinclude
+CFLAGS := -Wall -static -nostdlib -arch i386 -fno-stack-protector -fno-builtin -O0 --target=$(TARGET) -Iinclude
 
 ASM_FLAGS := -DASSEMBLER $(CFLAGS)
 
-OBJS = asm.o console.o utils.o vsprintf.o playground.o loader.o ioports.o pci.o
+OBJS = asm.o console.o utils.o vsprintf.o loader.o ioports.o pci.o firmware.o
 
 %.o: %.S
 	$(CC) $(ASM_FLAGS) -c $< -o $@
