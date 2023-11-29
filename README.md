@@ -1,8 +1,8 @@
-# Apple TV Playground
+# freeldr-wrapper-appletv
 <img src="USBData/BootLogo.png" width="150" height="150"  alt="Apple TV Windows logo"/>
 
-The first stage bootloader for the unofficial Apple TV port of FreeLoader, allowing ReactOS and
-Windows to run on the Apple TV. See below for information on project status and instructions.
+The first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
+Windows to run on the Apple TV (1st Generation). See below for information on project status and instructions.
 ## Current project status
 Project status as of 11/26/2023: 85% complete (ReactOS kernel loads in VirtualBox and on real
 hardware, but hangs at the debugger because ReactOS does not yet support UEFI video. Work is
@@ -32,29 +32,29 @@ guide will go over both.
 
 FreeLoader will be located at `<output dir>/boot/freeldr/freeldr/freeldr.sys`.
 
-### Building `atv-playground` with FreeLoader (macOS)
-This is the easiest way to build `atv-playground` and will work on macOS 10.8 and above.
+### Building `freeldr-wrapper-appletv` with FreeLoader (macOS)
+This is the easiest way to build `freeldr-wrapper-appletv` and will work on macOS 10.8 and above.
 1. Install the Xcode Command Line Tools if you haven't already by typing `xcode-select --install` into Terminal
 2. Build FreeLoader (see above)
-3. Clone/download this repository: `git clone https://github.com/DistroHopper39B/atv-playground && cd atv-playground`
-4. Copy `freeldr.sys` into the `atv-playground` directory
+3. Clone/download this repository: `git clone https://github.com/DistroHopper39B/freeldr-wrapper-appletv && cd freeldr-wrapper-appletv`
+4. Copy `freeldr.sys` into the `freeldr-wrapper-appletv` directory
 5. Run `make`
 
 You will now have a `mach_kernel` file.
 
-### Building `atv-playground` with FreeLoader (Linux)
+### Building `freeldr-wrapper-appletv` with FreeLoader (Linux)
 On Linux, we have to cross-compile to generate the correct executable format. These steps should work on any modern Linux distribution.
 1. Build FreeLoader (see above)
 2. Install prerequisites: `clang llvm libstdc++6 libdispatch` (`libstdc++6` is part of `gcc-libs` on Arch)
 3. Clone/download `cctools-port`: `git clone https://github.com/tpoechtrager/cctools-port.git`. This is needed to link for macOS.
 4. cd into the correct directory: `cd cctools-port/cctools`
 5. Build: `./configure --prefix=/opt/cross --target=i386-apple-darwin8 && make -j$(nproc) && sudo make install`
-6. Clone/download this repository: `git clone https://github.com/DistroHopper39B/atv-playground && cd atv-playground`
+6. Clone/download this repository: `git clone https://github.com/DistroHopper39B/freeldr-wrapper-appletv && cd freeldr-wrapper-appletv`
 7. Run `make`
 
 You will now have a `mach_kernel` file.
 
-### Building `atv-playground` with FreeLoader (Windows)
+### Building `freeldr-wrapper-appletv` with FreeLoader (Windows)
 Follow the Linux steps in WSL.
 
 ## Usage
