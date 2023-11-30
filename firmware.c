@@ -93,7 +93,7 @@ void quirk_fixup_efi_memmap(handoff_boot_info *handoff)
         p = NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
     }
 
-    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.descriptor_size; i < num_maps; i++) {
+    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.addr; i < num_maps; i++) {
         UINT64   target;
 
         target = 0x025AE000;
