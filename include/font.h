@@ -3,7 +3,6 @@
 
 /*
  * xnu/osfmk/console/iso_font.c
- * I hope I can legally distribute this under the GPLv2
  *
  * ISO Latin-1 Font
  *
