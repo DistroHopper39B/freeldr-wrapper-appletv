@@ -2,7 +2,7 @@
 #ifndef _LINUX_EFI_H
 #define _LINUX_EFI_H
 
-#include <atvlib.h>
+#include <fldrwrapper.h>
 #include <handoff.h>
 
 extern int memcmp(const void *cs,const void *ct, size_t count);

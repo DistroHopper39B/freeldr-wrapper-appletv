@@ -6,7 +6,7 @@
 #ifndef PLAYGROUND_HANDOFF_STRUCT_H
 #define PLAYGROUND_HANDOFF_STRUCT_H
 
-#include "atvint.h"
+#include "types.h"
 
 // Apple TV Magic number: verifies that we loaded the struct correctly.
 #define ATV_LOADER_MAGIC_NUMBER 0xBAADC0DE

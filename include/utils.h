@@ -1,7 +1,7 @@
 #ifndef _ATVUTILS_H_
 #define _ATVUTILS_H_
 
-#include <atvint.h>
+#include <types.h>
 
 extern void	msleep(int s);
 extern void	sleep(int s);

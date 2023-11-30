@@ -1,9 +1,9 @@
 #ifndef _ATVLIB_H_
 #define _ATVLIB_H_
 
-#include "atvint.h"
-#include "atvmach.h"
-#include "atvutils.h"
+#include "types.h"
+#include "mach.h"
+#include "utils.h"
 #include "console.h"
 #include "debug_console.h"
 #include "handoff.h"

@@ -3,7 +3,7 @@
 // This is a small PCI driver created to switch the Prog IF of the IDE controller.
 //
 
-#include <atvlib.h>
+#include <fldrwrapper.h>
 
 pci_slot_info *slot;
 

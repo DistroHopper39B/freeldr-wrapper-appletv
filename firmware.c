@@ -2,7 +2,7 @@
 // Created by distrohopper39b on 11/28/23.
 //
 
-#include <atvlib.h>
+#include <fldrwrapper.h>
 
 /**
  * Convert EFI memory map to Multiboot memory map to be passed to freeldr.

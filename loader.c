@@ -1,4 +1,4 @@
-#include <atvlib.h>
+#include <fldrwrapper.h>
 
 mach_boot_parms *mach_bp;
 handoff_boot_info *handoffBootInfo;
@@ -59,7 +59,6 @@ u32 *CreateBootInfo(handoff_boot_info *h) {
     return (u32 *) h;
 }
 
-
 // Validate executable header to be FreeLoader
 u32 ValidateFreeldr() {
     u32 FreeldrOffset = 0;
@@ -85,7 +84,6 @@ u32 ValidateFreeldr() {
 }
 
 // Load FreeLoader to the correct location in memory and calculate the entry point.
-
 u32 LoadFreeldr() {
     u32 FreeldrOffset = ValidateFreeldr();
     freeldr_hdr *hdr;

@@ -1,9 +1,9 @@
 #ifndef _ATVMACH_H_
 #define _ATVMACH_H_
 
-#include <atvint.h>
+#include <types.h>
 #include <firmware.h>
-#define DARWIN_IMAGE_BASE	0x002000000
+
 // xnu pexpert/pexpert/i386/boot.h
 /* Values for v_display */
 #define VGA_TEXT_MODE 0

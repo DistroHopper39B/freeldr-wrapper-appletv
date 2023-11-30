@@ -6,7 +6,7 @@
 #ifndef PLAYGROUND_PCI_H
 #define PLAYGROUND_PCI_H
 
-#include <atvlib.h>
+#include <fldrwrapper.h>
 
 #define PCI_TYPE1_ADDRESS_PORT 0xCF8
 #define PCI_TYPE1_DATA_PORT 0xCFC
