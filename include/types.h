@@ -1,5 +1,5 @@
-#ifndef _ATVINT_H_
-#define _ATVINT_H_
+#ifndef _TYPES_H
+#define _TYPES_H
 
 typedef signed char        int8_t;
 typedef short              int16_t;

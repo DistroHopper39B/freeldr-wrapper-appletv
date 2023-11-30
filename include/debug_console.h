@@ -3,10 +3,10 @@
 // This file contains definitions that are useful for debugging.
 //
 
-#ifndef PLAYGROUND_DEBUG_H
-#define PLAYGROUND_DEBUG_H
+#ifndef _DEBUG_CONSOLE_H
+#define _DEBUG_CONSOLE_H
 
 #define SERIAL_PRINT
 //#define SCREEN_PRINT
 
-#endif //PLAYGROUND_DEBUG_H
+#endif //_DEBUG_CONSOLE_H

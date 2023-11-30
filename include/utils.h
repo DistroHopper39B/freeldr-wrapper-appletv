@@ -1,5 +1,5 @@
-#ifndef _ATVUTILS_H_
-#define _ATVUTILS_H_
+#ifndef _UTILS_H
+#define _UTILS_H
 
 #include <types.h>
 

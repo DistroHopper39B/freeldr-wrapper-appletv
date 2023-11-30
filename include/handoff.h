@@ -3,8 +3,8 @@
 // The struct passed to freeldr
 //
 
-#ifndef PLAYGROUND_HANDOFF_STRUCT_H
-#define PLAYGROUND_HANDOFF_STRUCT_H
+#ifndef _HANDOFF_H
+#define _HANDOFF_H
 
 #include "types.h"
 
@@ -75,4 +75,4 @@ typedef struct {
 } freeldr_hdr;
 
 
-#endif //PLAYGROUND_HANDOFF_STRUCT_H
+#endif //_HANDOFF_H

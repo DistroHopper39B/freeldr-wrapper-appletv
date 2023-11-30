@@ -1,5 +1,5 @@
-#ifndef _ATVLIB_H_
-#define _ATVLIB_H_
+#ifndef _FLDRWRAPPER_H
+#define _FLDRWRAPPER_H
 
 #include "types.h"
 #include "mach.h"

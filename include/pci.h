@@ -3,8 +3,8 @@
 // This is a small PCI driver created to switch the Prog IF of the IDE controller.
 //
 
-#ifndef PLAYGROUND_PCI_H
-#define PLAYGROUND_PCI_H
+#ifndef _PCI_H
+#define _PCI_H
 
 #include <fldrwrapper.h>
 
@@ -64,4 +64,4 @@ typedef struct _pci_device {
 
 extern void AppleTVFixupIdeController();
 
-#endif //PLAYGROUND_PCI_H
+#endif //_PCI_H

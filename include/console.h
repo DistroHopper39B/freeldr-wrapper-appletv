@@ -2,8 +2,8 @@
 // Created by distrohopper39b on 7/4/23.
 //
 #include <stdarg.h>
-#ifndef PLAYGROUND_NEW_CONSOLE_H
-#define PLAYGROUND_NEW_CONSOLE_H
+#ifndef _CONSOLE_H
+#define _CONSOLE_H
 
 extern void ClearScreen(int alpha);
 extern void SetupScreen();
@@ -20,4 +20,4 @@ extern volatile u32 TextForegroundColor;
 
 #define COM1 0x3F8
 
-#endif //PLAYGROUND_NEW_CONSOLE_H
+#endif //_CONSOLE_H

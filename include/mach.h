@@ -1,5 +1,5 @@
-#ifndef _ATVMACH_H_
-#define _ATVMACH_H_
+#ifndef _MACH_H
+#define _MACH_H
 
 #include <types.h>
 #include <firmware.h>

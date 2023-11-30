@@ -1,5 +1,5 @@
-#ifndef PLAYGROUND_FONT_H
-#define PLAYGROUND_FONT_H
+#ifndef _FONT_H
+#define _FONT_H
 
 /*
  * xnu/osfmk/console/iso_font.c
@@ -152,4 +152,4 @@ unsigned char iso_font[] = {
 #define ISO_CHAR_WIDTH  8
 #define ISO_CHAR_HEIGHT 16
 
-#endif //PLAYGROUND_FONT_H
+#endif //_FONT_H
