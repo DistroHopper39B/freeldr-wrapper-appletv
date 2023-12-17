@@ -1,23 +1,25 @@
 # freeldr-wrapper-appletv
 ## **THIS PROJECT IS NOT FINISHED OR PRODUCTION READY. DO NOT ATTEMPT TO USE THIS TO INSTALL WINDOWS ON YOUR APPLE TV. IT WILL NOT WORK.**
-<img src="USBData/BootLogo.png" width="150" height="150"  alt="Apple TV Windows logo"/>
+<img src=".assets/RosVbox.png" alt="ReactOS successfully booted in a virtual machine with system properties and winver open">
 
 Wrapper and first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
 Windows to run on the Apple TV (1st Generation). See below for information on project status and instructions.
 ## Current project status
-Project status as of 11/26/2023: 85% complete (ReactOS kernel loads in VirtualBox and on real
-hardware, but hangs at the debugger because ReactOS does not yet support UEFI video. Work is
-being done on a UEFI video driver in ReactOS, but it is not yet complete.)
+Project status as of 12/17/2023: 80% complete. ReactOS will successfully boot to the desktop in VirtualBox, but fails to
+initialize the user-mode video driver on real hardware for some reason. The registry also gets majorly corrupted, possibly due
+to an issue with the chipset not playing well with the PCI Prog IF hack I did to "fix" FreeLoader's IDE driver, but more
+testing is needed to confirm this. User-mode video driver is completely broken on Windows 2003 and Windows XP, and there
+are issues with ACPI and disk access on those systems.
 
-| Portion                      | Status | Location                                                              | Notes                                  |
-|------------------------------|--------|-----------------------------------------------------------------------|----------------------------------------|
-| First stage boot loader      | 100%   | This repository                                                       | Fully complete                         |
-| FreeLoader                   | 95%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | UEFI video passthrough in early stages |
-| ReactOS booting              | ??%    | [ReactOS](https://reactos.org)                                        | Need UEFI video driver                 |
-| Windows XP/2003 boot support | ??%    | Microsoft, I guess                                                    | Need UEFI video driver                 |
+| Portion                      | Status | Location                                                               | Notes                                                                                                            |
+|------------------------------|--------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| First stage boot loader      | 98%    | This repository                                                        | Ugly hacks must be fixed (see TODO)                                                                              |
+| FreeLoader                   | 90%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos)  | Should be fully complete unless modifications are required for userspace video driver or disk support in ReactOS |
+| ReactOS booting              | 50%    | [ReactOS](https://reactos.org)                                         | Working in VirtualBox, real hardware fails to initialize user-mode video driver for some reason                  |
+| Windows XP/2003 boot support | ??%    | Microsoft, I guess                                                     | ReactOS UEFI driver not working properly yet, ACPI and disk errors                                               |
 
 ## Prebuilt binaries
-Available when FreeLoader is complete.
+Available when ReactOS has successfully booted on hardware.
 ## Building
 The first (here) and second (ReactOS) stages of this bootloader have entirely different build systems. This
 guide will go over both.
@@ -46,7 +48,7 @@ You will now have a `mach_kernel` file.
 ### Building `freeldr-wrapper-appletv` with FreeLoader (Linux)
 On Linux, we have to cross-compile to generate the correct executable format. These steps should work on any modern Linux distribution.
 1. Build FreeLoader (see above)
-2. Install prerequisites: `clang llvm libstdc++6 libdispatch` (`libstdc++6` is part of `gcc-libs` on Arch)
+2. Install prerequisites: `clang llvm libstdc++6 libdispatch autoconf automake` (`libstdc++6` is part of `gcc-libs` on Arch)
 3. Clone/download `cctools-port`: `git clone https://github.com/tpoechtrager/cctools-port.git`. This is needed to link for macOS.
 4. cd into the correct directory: `cd cctools-port/cctools`
 5. Build: `./configure --prefix=/opt/cross --target=i386-apple-darwin8 && make -j$(nproc) && sudo make install`
@@ -72,8 +74,9 @@ The Apple TV will only boot using the Apple original `boot.efi` shipped with the
 be redistributed, we must download it directly from Apple.
 
 The software update can be found at https://mesu.apple.com/data/OS/061-7495.20100210.TAVfr/2Z694-6013-013.dmg.
-It is roughly 235MB in size. On Windows or Linux, we can use [7-zip](https://7-zip.org/) or `p7zip` to extract
-the boot.efi from this file. A one-liner to extract the file would be:
+It is roughly 235MB in size and has a SHA-1 checksum of `97623d8d21bb59b0f4dc9d1b1c037f25c9fe09c3`. On Windows or Linux,
+we can use [7-zip](https://7-zip.org/) or `p7zip` to extract the boot.efi from this file. A one-liner to extract the file
+would be:
 ```shell
 7z e 2Z694-6013-013.dmg OSBoot/System/Library/CoreServices/boot.efi
 ```
@@ -103,15 +106,17 @@ To set up the USB drive, follow these steps:
 More detailed instructions to follow. Basically,
 [you have to remove the hard drive from the Apple TV](https://www.ifixit.com/Guide/Apple+TV+1st+Generation+Hard+Drive+Replacement/4799),
 install Windows or ReactOS on it through any one of a variety of methods, and reinstall it. As of 11/26/2023, the expected
-behavior with [the latest developer builds of ReactOS](https://reactos.org/getbuilds/) is a black screen after the
+behavior with [the unoffical ReactOS fork](https://github.com/distrohopper39b/reactos) is a black screen after the
 menu appears and a dozen or so DLLs load. 
-
+### TODO
+- Fix ugly hacks:
+  - The boot struct is placed at physical memory address 0x0. For obvious reasons this is absolutely insane, but it works for now so I haven't bothered fixing it.
 ## Special Thanks
 - [The_DarkFire_](https://github.com/DarkFire01/) for helping me with this process and answering my stupid questions
 - The developers of [atv-bootloader](https://github.com/loop333/atv-bootloader) and its predecessors
-  - loop333 for the modern compiler fixes
-  - davilla (Scott Davilla) for `atv-bootloader` and various workarounds
+  - [loop333](https://github.com/loop333/atv-bootloader) for the modern compiler fixes
+  - [davilla](https://github.com/davilla/atv-bootloader) (Scott Davilla) for `atv-bootloader` and various workarounds
   - James McKenzie for `mb_boot_tv`, a predecessor to `atv-bootloader`
   - Edgar (gimli) Hucek for the first Linux bootloader, `mach_linux_boot`
-- [The OSDev wiki](https://wiki.osdev.org) for helping with PCI implementation
+- [The OSDev wiki](https://wiki.osdev.org) for helping with my PCI IDE hack
 - [The ReactOS developers](https://github.com/reactos/reactos/graphs/contributors) for creating FreeLoader

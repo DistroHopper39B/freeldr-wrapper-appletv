@@ -7,6 +7,6 @@
 #define _DEBUG_CONSOLE_H
 
 #define SERIAL_PRINT
-//#define SCREEN_PRINT
+// #define SCREEN_PRINT
 
 #endif //_DEBUG_CONSOLE_H

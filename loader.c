@@ -13,33 +13,30 @@ void c_entry(u32 args) {
     mach_bp = (mach_boot_parms *) args;
     // set up screen
     SetupScreen();
-    // zero out low memory/freeldr stack area
-    memset((void *) 0x0000, 0x0, 0xF000);
     // Fixup Apple TV IDE controller
     AppleTVFixupIdeController();
     // Create the info structure.
     CreateBootInfo(handoffBootInfo);
-    // Clone the ACPI and SMBIOS entries to low memory so that Windows detects them.
-    LegacyAcpiSmbiosFix();
     // Load freeldr into memory
     printf("Loading FreeLoader...\n");
     u32 EntryPoint = LoadFreeldr();
+    // Clone the ACPI and SMBIOS entries to low memory so that Windows detects them.
+    LegacyAcpiSmbiosFix();
     // Jump to assembly loader
-    JumpToFreeldr(EntryPoint, (u32) &handoffBootInfo);
+    JumpToFreeldr(EntryPoint);
 }
 
 // Create boot struct for use with freeldr.
 u32 *CreateBootInfo(handoff_boot_info *h) {
     h->magic = ATV_LOADER_MAGIC_NUMBER;
 
-    h->cmdline_ptr = (u32) mach_bp->cmdline;
+    h->cmdline_ptr = (u32) &mach_bp->cmdline;
 
     h->efi_map.addr = mach_bp->efi_mem_map;
     h->efi_map.size = mach_bp->efi_mem_map_size;
     h->efi_map.descriptor_size = mach_bp->efi_mem_desc_size;
     h->efi_map.descriptor_version = mach_bp->efi_mem_desc_ver;
 
-    quirk_fixup_efi_memmap(h);
     h->multiboot_map.addr = 0x003F0000;
     FillMultibootMemoryMap(h);
     PrintMultibootMemoryMap(h);
@@ -88,7 +85,7 @@ u32 LoadFreeldr() {
     u32 FreeldrOffset = ValidateFreeldr();
     freeldr_hdr *hdr;
     hdr = (freeldr_hdr *) (FreeldrPtr + FreeldrOffset);
-    // Copy FreeLDR into the specified location.
+    // Copy FreeLoader into the specified location.
     debug_printf("Copying FreeLoader to 0x%08X...", hdr->load_addr);
     memcpy((void *) hdr->load_addr, FreeldrPtr, FreeldrLen);
     debug_printf("done.\n");

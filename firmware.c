@@ -9,120 +9,6 @@
  * This code is based on a Linux kernel patch submitted by Edgar Hucek and modified for use with a Multiboot
  * memory map.
  */
-void quirk_fixup_efi_memmap(handoff_boot_info *handoff)
-{
-    /* November 26, 2007 -- Scott Davilla (davilla@4pi.com)
-      The appletv efi firmware has a bug that effects linux kernel when
-    booting from efi. Three EFI RunTime Services Code/Data segments overlap
-    a declared free ememory segment. This can cause code/data overwrites
-    and result in unknown crashes/hangs when running linux.
-    */
-    u32                     num_maps, i;
-    UINT64                  bgn, end, bgn_match, end_match;
-    efi_memory_desc_t       *md, *p;
-
-    bgn_match = end_match = -1;
-
-    num_maps = handoff->efi_map.size / handoff->efi_map.descriptor_size;
-
-    ChangeColors(0xFFFF00FF, 0x00000000);
-    debug_printf("[QUIRK] Fixing EFI memory map...\n");
-
-    // gather up the offending memory ranges
-    // these are the two EFI_RUNTIME_SERVICES_CODE and one EFI_RUNTIME_SERVICES_DATA
-    // memmap sections. This routine assumes that the sections will appear in order
-    // which they seem to always do for the appleTV
-    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.addr; i < num_maps; i++) {
-        md = p;
-
-        bgn = md->phys_addr;
-        end = md->phys_addr + (md->num_pages << EFI_PAGE_SHIFT);
-        //
-        switch (md->type) {
-            case EFI_RUNTIME_SERVICES_CODE:
-            case EFI_RUNTIME_SERVICES_DATA:
-                if (bgn_match == -1) {
-                    bgn_match = md->phys_addr;
-                    end_match = md->phys_addr + (md->num_pages << EFI_PAGE_SHIFT);
-                } else {
-                    if (end_match == md->phys_addr) {
-                        end_match = md->phys_addr + (md->num_pages << EFI_PAGE_SHIFT);
-                    }
-                }
-
-                break;
-        }
-        p = NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
-    }
-
-    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.addr; i < num_maps; i++) {
-
-        md = p;
-
-        bgn = md->phys_addr;
-        end = md->phys_addr + (md->num_pages << EFI_PAGE_SHIFT);
-
-        /*
-        printk("mem%02d: type=%d, ", i, md->Type );
-        printk("attr=0x%08X%08X\n", hi32(md->Attribute), lo32(md->Attribute) );
-        printk("   range=[0x%08X%08X-", hi32(bgn), lo32(bgn) );
-        printk("0x%08X%08X], ", hi32(end), lo32(end) );
-        debug_printf("%dMB\n", lo32(md->NumberOfPages >> (20 - EFI_PAGE_SHIFT)) );
-        */
-
-        // find problem free memory segment */
-        if ( (bgn == bgn_match) & (end >= end_match) ) {
-            UINT64		new_bgn, new_end, new_pages;
-
-            // debug_printf("[QUIRK] Found memory overlap\n");
-            // debug_printf("[QUIRK] Memory range=[0x%08X%08X-", hi32(bgn), lo32(bgn) );
-            // debug_printf("0x%08X%08X]\n", hi32(end), lo32(end) );
-
-            new_bgn = end_match;
-            new_pages = (end - new_bgn) / (1 << EFI_PAGE_SHIFT);
-
-            new_end = new_bgn + (new_pages << EFI_PAGE_SHIFT);
-            debug_printf("[QUIRK] Fixing memory overlap...\n");
-            debug_printf("[QUIRK] Memory range=[0x%08X%08X-", hi32(new_bgn), lo32(new_bgn));
-            debug_printf("0x%08X%08X]\n", hi32(new_end), lo32(new_end));
-
-            md->phys_addr = new_bgn;
-            md->num_pages = new_pages;
-        }
-
-        p = NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
-    }
-
-    for (i = 0, p = (efi_memory_desc_t*)handoff->efi_map.addr; i < num_maps; i++) {
-        UINT64   target;
-
-        target = 0x025AE000;
-        md = p;
-
-        bgn = md->phys_addr;
-        end = md->phys_addr + (md->num_pages << EFI_PAGE_SHIFT);
-
-        if ( (bgn < target) & (end > target) ) {
-            UINT64          new_bgn, new_pages;
-
-
-            new_bgn = bgn;
-            new_pages = (target - new_bgn) / (1 << EFI_PAGE_SHIFT);
-
-            debug_printf("[QUIRK] Fixing memory target...\n");
-
-            md->phys_addr = new_bgn;
-            md->num_pages = new_pages;
-
-            md->num_pages = new_pages;
-        }
-
-        p = NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
-    }
-    debug_printf("[QUIRK] Fixup complete.\n");
-    ChangeColors(0xFFFFFFFF, 0x00000000);
-}
-
 // Add memory region to the multiboot memory map.
 void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type) {
 
@@ -282,7 +168,7 @@ void LegacyAcpiSmbiosFix() {
     for (i = 0; i < num_config_tables; i++) {
         if (efi_guidcmp(config_tables[i].guid, MPS_TABLE_GUID) == 0) {
             efitab.mps = (void*)config_tables[i].table;
-            //debug_printf(" MPS=0x%lx ", config_tabl   es[i].table);
+            //debug_printf(" MPS=0x%lx ", config_tables[i].table);
             //
         } else if (efi_guidcmp(config_tables[i].guid, ACPI_20_TABLE_GUID) == 0) {
             efitab.acpi20 = (void*)config_tables[i].table;
@@ -308,18 +194,20 @@ void LegacyAcpiSmbiosFix() {
     //debug_printf("\n");
 
     // rsdp_low_mem is unsigned long so alignment below works
-    u32	rsdp_low_mem   = 0xF8000;
-    u32	smbios_low_mem = 0xF8100;
+    u32	*rsdp_low_mem   = (u32 *) ACPI_TABLE_LOW;
+    u32	*smbios_low_mem = (u32 *) SMBIOS_TABLE_LOW;
     //
     debug_printf("Cloning ACPI entry from 0x%08X to 0x%lX...", efitab.acpi20, rsdp_low_mem);
     // We need at copy the RSDP down low so linux can find it
     // copy RSDP table entry from efi location to low mem location
-    memcpy((void*)rsdp_low_mem, efitab.acpi20, sizeof(acpi_rsdp_t) );
+    memcpy((void *) rsdp_low_mem, efitab.acpi20, sizeof(acpi_rsdp_t) );
+    debug_printf("acpi location = 0x%08X\n", *rsdp_low_mem);
     debug_printf("done.\n");
 
     debug_printf("Cloning SMBIOS entry from 0x%08X to 0x%lX...", efitab.smbios, smbios_low_mem);
     // We need at copy the SMBIOS Table Entry Point down low so linux can find it
     // copy SMBIOS Table Entry Point from efi location to low mem location
-    memcpy((void*)smbios_low_mem, efitab.smbios, sizeof(smbios_entry_t) );
+    memcpy((void *) smbios_low_mem, efitab.smbios, sizeof(smbios_entry_t) );
+    debug_printf("smbios location = 0x%08X\n", *smbios_low_mem);
     debug_printf("done.\n");
 }

@@ -7,7 +7,6 @@
 
 extern int memcmp(const void *cs,const void *ct, size_t count);
 
-extern void quirk_fixup_efi_memmap(handoff_boot_info *handoff);
 extern void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type);
 extern void FillMultibootMemoryMap(handoff_boot_info *handoff);
 extern void PrintMultibootMemoryMap(handoff_boot_info *handoff);
@@ -256,5 +255,10 @@ typedef struct efi_tables {
     void *smbios;
     void *uga;
 } efi_tables_t;
+
+// Locations for legacy SMBIOS and ACPI tables
+#define ACPI_TABLE_LOW 0xE0000
+#define SMBIOS_TABLE_LOW 0xF0000
+
 
 #endif

@@ -16,7 +16,7 @@ extern u32 *CreateBootInfo(handoff_boot_info *h);
 extern u32 LoadFreeldr();
 
 // from assembly
-extern void JumpToFreeldr(u32 start, u32 info);
+extern void JumpToFreeldr(u32 start);
 extern void fail();
 
 #endif
