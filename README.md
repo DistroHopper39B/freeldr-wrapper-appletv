@@ -1,25 +1,21 @@
 # freeldr-wrapper-appletv
 ## **THIS PROJECT IS NOT FINISHED OR PRODUCTION READY. DO NOT ATTEMPT TO USE THIS TO INSTALL WINDOWS ON YOUR APPLE TV. IT WILL NOT WORK.**
-<img src=".assets/RosVbox.png" alt="ReactOS successfully booted in a virtual machine with system properties and winver open">
+<img src=".assets/RosRealHardware.png" width="600" alt="ReactOS successfully booted on real hardware">
 
 Wrapper and first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
 Windows to run on the Apple TV (1st Generation). See below for information on project status and instructions.
 ## Current project status
-Project status as of 12/17/2023: 80% complete. ReactOS will successfully boot to the desktop in VirtualBox, but fails to
-initialize the user-mode video driver on real hardware for some reason. The registry also gets majorly corrupted, possibly due
-to an issue with the chipset not playing well with the PCI Prog IF hack I did to "fix" FreeLoader's IDE driver, but more
-testing is needed to confirm this. User-mode video driver is completely broken on Windows 2003 and Windows XP, and there
-are issues with ACPI and disk access on those systems.
+Project status as of 12/17/2023: 85% complete. ReactOS will successfully boot to the desktop on both VirtualBox and real hardware, but USB is not working on real hardware right now.
 
-| Portion                      | Status | Location                                                               | Notes                                                                                                            |
-|------------------------------|--------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| First stage boot loader      | 98%    | This repository                                                        | Ugly hacks must be fixed (see TODO)                                                                              |
-| FreeLoader                   | 90%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos)  | Should be fully complete unless modifications are required for userspace video driver or disk support in ReactOS |
-| ReactOS booting              | 50%    | [ReactOS](https://reactos.org)                                         | Working in VirtualBox, real hardware fails to initialize user-mode video driver for some reason                  |
-| Windows XP/2003 boot support | ??%    | Microsoft, I guess                                                     | ReactOS UEFI driver not working properly yet, ACPI and disk errors                                               |
+| Portion                      | Status | Location                                                              | Notes                                                                         |
+|------------------------------|--------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| First stage boot loader      | 98%    | This repository                                                       | Ugly hacks must be fixed (see TODO)                                           |
+| FreeLoader                   | 98%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | Ugly hacks must be fixed (see TODO)                                           |
+| ReactOS booting              | 80%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | USB not working                                                               |
+| Windows XP/2003 boot support | 30%    | Microsoft, I guess                                                    | - UEFI video driver not yet working <br/> - ACPI 1.x tables not passed in yet |
 
 ## Prebuilt binaries
-Available when ReactOS has successfully booted on hardware.
+Available when the ugly hacks are fixed.
 ## Building
 The first (here) and second (ReactOS) stages of this bootloader have entirely different build systems. This
 guide will go over both.

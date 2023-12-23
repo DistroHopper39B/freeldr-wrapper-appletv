@@ -30,7 +30,7 @@ LDFLAGS := -static -e __start -force_cpusubtype_ALL \
 # Include directories for headers
 INCLUDE_DIR = include
 
-CFLAGS := -Wall -nostdlib -arch i386 -fno-stack-protector -fno-builtin -O0 --target=$(TARGET) -Iinclude
+CFLAGS := -Wall -nostdlib -fno-stack-protector -fno-builtin -O0 --target=$(TARGET) -Iinclude
 
 ASM_FLAGS := -DASSEMBLER $(CFLAGS)
 
