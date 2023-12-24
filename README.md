@@ -5,13 +5,15 @@
 Wrapper and first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
 Windows to run on the Apple TV (1st Generation). See below for information on project status and instructions.
 ## Current project status
-Project status as of 12/17/2023: 85% complete. ReactOS will successfully boot to the desktop on both VirtualBox and real hardware, but USB is not working on real hardware right now.
+Project status as of 12/17/2023: 80% complete. ReactOS will successfully boot to the desktop on both VirtualBox
+and real hardware, but PCI does not work correctly, leading to most hardware not working. This issue is an upstream UEFI
+issue with ReactOS/FreeLoader.
 
 | Portion                      | Status | Location                                                              | Notes                                                                         |
 |------------------------------|--------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | First stage boot loader      | 98%    | This repository                                                       | Ugly hacks must be fixed (see TODO)                                           |
 | FreeLoader                   | 98%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | Ugly hacks must be fixed (see TODO)                                           |
-| ReactOS booting              | 80%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | USB not working                                                               |
+| ReactOS booting              | 60%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | USB not working                                                               |
 | Windows XP/2003 boot support | 30%    | Microsoft, I guess                                                    | - UEFI video driver not yet working <br/> - ACPI 1.x tables not passed in yet |
 
 ## Prebuilt binaries

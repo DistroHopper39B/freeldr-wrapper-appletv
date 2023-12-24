@@ -17,7 +17,7 @@ else
 endif
 
 # Flags for mach-o linker
-LDFLAGS := -static -e __start -force_cpusubtype_ALL \
+LDFLAGS := -static -force_cpusubtype_ALL \
                -segalign 0x1000 -segaddr __TEXT 0x00400000 \
                -sectalign __TEXT __text 0x1000 \
                -sectalign __DATA __common 0x1000 \

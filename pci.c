@@ -98,9 +98,7 @@ u8 PciGetSubclassCode(u8 Bus, u8 Slot, u8 Func) {
 }
 
 /* Get PCI vendor ID */
-u16
-PciGetVendorId(u8 Bus, u8 Slot, u8 Func)
-{
+u16 PciGetVendorId(u8 Bus, u8 Slot, u8 Func) {
     u16 VendorId;
 
     VendorId = PciReadWord(Bus, Slot, Func, 0x0);
@@ -109,9 +107,7 @@ PciGetVendorId(u8 Bus, u8 Slot, u8 Func)
 
 
 /* Get PCI device ID */
-u16
-PciGetDeviceId(u8 Bus, u8 Slot, u8 Func)
-{
+u16 PciGetDeviceId(u8 Bus, u8 Slot, u8 Func) {
     u16 DeviceId;
 
     DeviceId = PciReadWord(Bus, Slot, Func, 0x2);
@@ -126,6 +122,13 @@ u8 PciGetProgIf(u8 Bus, u8 Slot, u8 Func) {
     return ProgIf;
 }
 
+/* Get IRQ */
+u8 PciGetIRQ(u8 Bus, u8 Slot, u8 Func) {
+    u8 IRQ;
+
+    IRQ = PciReadByte(Bus, Slot, Func, 0x3C);
+    return IRQ;
+}
 /* Detect PCI IDE controller. */
 pci_slot_info *DetectPciIdeController() {
     u8 Bus, Slot, Func;
@@ -189,4 +192,9 @@ void AppleTVFixupIdeController() {
         printf("PCI: FATAL: Unsupported IDE controller!\n");
         fail();
     }
+    // test code
+    //PciWriteLong(0x00, 0x1D, 0x0, 0x3C, 0x0000100B);
+    //PciWriteLong(0x00, 0x1D, 0x7, 0x3C, 0x0000100B);
+    //PciWriteLong(0x00, 0x1F, 0x1, 0x3C, 0x00001012);
+
 }
