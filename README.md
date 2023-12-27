@@ -17,7 +17,7 @@ issue with ReactOS/FreeLoader.
 | Windows XP/2003 boot support | 30%    | Microsoft, I guess                                                    | - UEFI video driver not yet working <br/> - ACPI 1.x tables not passed in yet |
 
 ## Prebuilt binaries
-Available when the ugly hacks are fixed.
+Available when PCI is fixed
 ## Building
 The first (here) and second (ReactOS) stages of this bootloader have entirely different build systems. This
 guide will go over both.
