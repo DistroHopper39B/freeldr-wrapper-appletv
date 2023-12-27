@@ -9,7 +9,7 @@
 #define VGA_TEXT_MODE 0
 #define GRAPHICS_MODE 1
 #define FB_TEXT_MODE  2
-#define CMDLINE	1024
+#define MACH_CMDLINE	1024
 //
 typedef struct _mach_video_parms {
 	uint32_t addr;
@@ -23,7 +23,7 @@ typedef struct _mach_video_parms {
 typedef struct _mach_boot_parms {
     uint16_t         rev;
     uint16_t         ver;
-    char             cmdline[CMDLINE];
+    char             cmdline[MACH_CMDLINE];
     uint32_t         efi_mem_map;           // Pointer to UEFI memory map
     uint32_t         efi_mem_map_size;      // Size of UEFI memory map
     uint32_t         efi_mem_desc_size;     // Size of each UEFI memory descriptor

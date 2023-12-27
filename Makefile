@@ -6,7 +6,7 @@ OSTYPE = $(shell uname)
 # Target defs for Linux cross compiler.
 TARGET = i386-apple-darwin8
 
-# Definitions for compilers
+# Definitions for compiler
 CC := clang
 
 # Definitions for linker

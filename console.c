@@ -13,18 +13,27 @@ volatile u32 TextBackgroundColor = 0x00000000;
 volatile u32 TextForegroundColor = 0xFFFFFFFF;
 volatile u32 VideoCursorX;
 volatile u32 VideoCursorY;
+volatile u32 VideoCursorRightX;
+volatile u32 VideoCursorRightY;
+bool WrapperVerbose;
 
 // Clear screen function
-void ClearScreen(int alpha) {
-    memset((void *) mach_bp->video.addr, alpha, mach_bp->video.rowb * mach_bp->video.height);
-    VideoCursorX = VideoCursorOrigX;
-    VideoCursorY = VideoCursorOrigY;
+void ClearScreen(bool VerboseEnable) {
+    memset((void *) mach_bp->video.addr, 0, mach_bp->video.rowb * mach_bp->video.height);
+    SetupScreen();
+    if(VerboseEnable) {
+        WrapperVerbose = TRUE;
+    } else {
+        WrapperVerbose = FALSE;
+    }
 }
 
 // Setup screen without clearing it
 void SetupScreen() {
     VideoCursorX = VideoCursorOrigX;
     VideoCursorY = VideoCursorOrigY;
+    VideoCursorRightX = (mach_bp->video.rowb / 4) - 7;
+    VideoCursorRightY = VideoCursorOrigY;
     // Make serial look better
     PrintToSerial("\n");
 }
@@ -76,6 +85,7 @@ void PrintToScreen(const char *szBuffer) {
         }
     }
 }
+
 // Change colors of text on the fly.
 void ChangeColors(u32 Foreground, u32 Background) {
     TextForegroundColor = Foreground;
@@ -89,26 +99,24 @@ void PrintToSerial(const char *szBuffer) {
     }
 }
 
-// print only if SERIAL_PRINT and/or SCREEN_PRINT are enabled
+// print only if Verbose mode is specified.
 void debug_printf(const char *szFormat, ...) {
-    char szBuffer[512 * 2];
-    u16 wLength = 0;
-    va_list argList;
+    if(WrapperVerbose == TRUE) {
+        char szBuffer[512 * 2];
+        u16 wLength = 0;
+        va_list argList;
 
-    va_start(argList, szFormat);
-    wLength = (u16) vsprintf(szBuffer, szFormat, argList);
-    va_end(argList);
+        va_start(argList, szFormat);
+        wLength = (u16) vsprintf(szBuffer, szFormat, argList);
+        va_end(argList);
 
-    szBuffer[sizeof(szBuffer) - 1] = 0;
-    if (wLength > (sizeof(szBuffer) - 1))
-        wLength = sizeof(szBuffer) - 1;
-    szBuffer[wLength] = '\0';
-#ifdef SCREEN_PRINT
-    PrintToScreen(szBuffer);
-#endif
-#ifdef SERIAL_PRINT
-    PrintToSerial(szBuffer);
-#endif
+        szBuffer[sizeof(szBuffer) - 1] = 0;
+        if (wLength > (sizeof(szBuffer) - 1))
+            wLength = sizeof(szBuffer) - 1;
+        szBuffer[wLength] = '\0';
+        PrintToScreen(szBuffer);
+        PrintToSerial(szBuffer);
+    }
 }
 
 // print always

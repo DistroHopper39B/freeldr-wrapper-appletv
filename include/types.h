@@ -30,8 +30,7 @@ typedef unsigned short     u16;
 typedef unsigned long      u32;
 typedef unsigned long long u64;
 typedef short s16;
-typedef int                bool;
-typedef unsigned int       boolean_t;
+typedef char               bool;
 typedef u32 phys_addr_t;
 
 #define UUID_SIZE 16
@@ -52,8 +51,8 @@ struct range {
 
 #define __aligned(x)                    __attribute__((__aligned__(x)))
 
-#define false 0
-#define true  1
+#define FALSE 0
+#define TRUE  1
 #define NULL  ((void *) 0)
 //
 

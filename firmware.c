@@ -10,34 +10,34 @@
  * memory map.
  */
 // Add memory region to the multiboot memory map.
-void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type) {
+void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 Address, u64 Length, u32 Type) {
 
     u32 x = *NumberOfEntries;
 
-    if ((x > 0) && map[x-1].addr + map[x-1].len == addr
-        && map[x-1].type == type)
-        map[x-1].len += len;
+    if ((x > 0) && map[x-1].Address + map[x-1].Length == Address
+        && map[x-1].Type == Type)
+        map[x-1].Length += Length;
     else {
-        map[x].addr = addr;
-        map[x].len = len;
-        map[x].type = type;
+        map[x].Address = Address;
+        map[x].Length = Length;
+        map[x].Type = Type;
         (*NumberOfEntries)++;
     }
 
 }
 
 // Convert EFI memory map to Multiboot memory map.
-void FillMultibootMemoryMap(handoff_boot_info *handoff) {
+void FillMultibootMemoryMap(PBOOTINFO BootInfo) {
     u32 EfiNumberOfEntries, MultibootNumberOfEntries = 0, i;
     u64 start, end, size;
     efi_memory_desc_t *md, *p;
     struct mmap_entry *MultibootMapEntry;
 
-    EfiNumberOfEntries = handoff->efi_map.size / handoff->efi_map.descriptor_size;
-    //debug_printf("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
-    MultibootMapEntry = (struct mmap_entry *) handoff->multiboot_map.addr;
+    EfiNumberOfEntries = mach_bp->efi_mem_map_size / mach_bp->efi_mem_desc_size;
+    debug_printf("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
+    MultibootMapEntry = (struct mmap_entry *) BootInfo->MemoryMapAddr;
 
-    for(i = 0, p = (efi_memory_desc_t *) handoff->efi_map.addr; i < EfiNumberOfEntries; i++) {
+    for(i = 0, p = (efi_memory_desc_t *) mach_bp->efi_mem_map; i < EfiNumberOfEntries; i++) {
         md = p;
         switch (md->type) {
             // ACPI tables -- to be preserved by loader/OS until ACPI is enable
@@ -109,26 +109,26 @@ void FillMultibootMemoryMap(handoff_boot_info *handoff) {
                                 MULTIBOOT_MEMORY_RESERVED);
                 break;
         }
-        p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, handoff->efi_map.descriptor_size);
+        p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, mach_bp->efi_mem_desc_size);
     }
-    // debug_printf("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
-    handoff->multiboot_map.size = sizeof(struct mmap_entry) * MultibootNumberOfEntries;
-    handoff->multiboot_map.entries = MultibootNumberOfEntries;
+    debug_printf("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
+    BootInfo->MemoryMapSize = sizeof(struct mmap_entry) * MultibootNumberOfEntries;
+    BootInfo->MemoryMapEntries = MultibootNumberOfEntries;
 }
 
-void PrintMultibootMemoryMap(handoff_boot_info *handoff) {
+void PrintMultibootMemoryMap(PBOOTINFO BootInfo) {
     int	i;
     struct mmap_entry *MultibootMapEntry;
-    MultibootMapEntry = (struct mmap_entry *) handoff->multiboot_map.addr;
+    MultibootMapEntry = (struct mmap_entry *) BootInfo->MemoryMapAddr;
 
 
-    for (i = 0; i < handoff->multiboot_map.entries; i++) {
+    for (i = 0; i < BootInfo->MemoryMapEntries; i++) {
         debug_printf("%s: 0x%08X%08X - 0x%08X%08X ", "Multiboot Memory Map",
-                     hi32(MultibootMapEntry[i].addr),
-                     lo32(MultibootMapEntry[i].addr),
-                     hi32(MultibootMapEntry[i].addr + MultibootMapEntry[i].len),
-                     lo32(MultibootMapEntry[i].addr + MultibootMapEntry[i].len));
-        switch (MultibootMapEntry[i].type) {
+                     hi32(MultibootMapEntry[i].Address),
+                     lo32(MultibootMapEntry[i].Address),
+                     hi32(MultibootMapEntry[i].Address + MultibootMapEntry[i].Length),
+                     lo32(MultibootMapEntry[i].Address + MultibootMapEntry[i].Length));
+        switch (MultibootMapEntry[i].Type) {
             case MULTIBOOT_MEMORY_AVAILABLE:
                 debug_printf("(usable)\n");
                 break;
@@ -142,7 +142,7 @@ void PrintMultibootMemoryMap(handoff_boot_info *handoff) {
                 debug_printf("(ACPI NVS)\n");
                 break;
             default:
-                debug_printf("type %u\n", MultibootMapEntry[i].type);
+                debug_printf("Type %u\n", MultibootMapEntry[i].Type);
                 break;
         }
     }

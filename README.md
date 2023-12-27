@@ -5,15 +5,15 @@
 Wrapper and first stage bootloader for the unofficial original Apple TV port of FreeLoader, allowing ReactOS and
 Windows to run on the Apple TV (1st Generation). See below for information on project status and instructions.
 ## Current project status
-Project status as of 12/17/2023: 80% complete. ReactOS will successfully boot to the desktop on both VirtualBox
+Project status as of 12/26/2023: 80% complete. ReactOS will successfully boot to the desktop on both VirtualBox
 and real hardware, but PCI does not work correctly, leading to most hardware not working. This issue is an upstream UEFI
 issue with ReactOS/FreeLoader.
 
 | Portion                      | Status | Location                                                              | Notes                                                                         |
 |------------------------------|--------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| First stage boot loader      | 98%    | This repository                                                       | Ugly hacks must be fixed (see TODO)                                           |
-| FreeLoader                   | 98%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | Ugly hacks must be fixed (see TODO)                                           |
-| ReactOS booting              | 60%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | USB not working                                                               |
+| First stage boot loader      | 100%   | This repository                                                       | Complete                                                                      |
+| FreeLoader                   | 98%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | PCI stuff needs to be fixed                                                   |
+| ReactOS booting              | 60%    | [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos) | USB not working (caused by PCI breakage)                                      |
 | Windows XP/2003 boot support | 30%    | Microsoft, I guess                                                    | - UEFI video driver not yet working <br/> - ACPI 1.x tables not passed in yet |
 
 ## Prebuilt binaries
@@ -106,9 +106,6 @@ More detailed instructions to follow. Basically,
 install Windows or ReactOS on it through any one of a variety of methods, and reinstall it. As of 11/26/2023, the expected
 behavior with [the unoffical ReactOS fork](https://github.com/distrohopper39b/reactos) is a black screen after the
 menu appears and a dozen or so DLLs load. 
-### TODO
-- Fix ugly hacks:
-  - The boot struct is placed at physical memory address 0x0. For obvious reasons this is absolutely insane, but it works for now so I haven't bothered fixing it.
 ## Special Thanks
 - [The_DarkFire_](https://github.com/DarkFire01/) for helping me with this process and answering my stupid questions
 - The developers of [atv-bootloader](https://github.com/loop333/atv-bootloader) and its predecessors

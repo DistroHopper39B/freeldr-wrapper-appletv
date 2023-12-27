@@ -3,13 +3,13 @@
 #define _FIRMWARE_H
 
 #include <fldrwrapper.h>
-#include <handoff.h>
+#include <bootinfo.h>
 
 extern int memcmp(const void *cs,const void *ct, size_t count);
 
 extern void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type);
-extern void FillMultibootMemoryMap(handoff_boot_info *handoff);
-extern void PrintMultibootMemoryMap(handoff_boot_info *handoff);
+extern void FillMultibootMemoryMap(PBOOTINFO BootInfo);
+extern void PrintMultibootMemoryMap(PBOOTINFO BootInfo);
 extern void LegacyAcpiSmbiosFix();
 
 // acpi/smbios code from linux_code.h
