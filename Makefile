@@ -5,6 +5,9 @@
 # COPYRIGHT:	Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
 #
 
+USER=$(shell whoami)
+HOST=$(shell hostname)
+
 # Check what OS we're running. Should work on Linux and macOS.
 OSTYPE = $(shell uname)
 
@@ -35,7 +38,7 @@ LDFLAGS := -static -force_cpusubtype_ALL \
 # Include directories for headers
 INCLUDE_DIR = include
 
-CFLAGS := -Wall -nostdlib -fno-stack-protector -fno-builtin -O0 --target=$(TARGET) -Iinclude
+CFLAGS := -Wall -nostdlib -fno-stack-protector -fno-builtin -O0 --target=$(TARGET) -Iinclude -D__BUILD_USER=\"$(USER)\" -D__BUILD_HOST=\"$(HOST)\"
 
 ASM_FLAGS := -DASSEMBLER $(CFLAGS)
 

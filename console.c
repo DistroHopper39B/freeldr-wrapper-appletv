@@ -20,6 +20,7 @@ volatile u32 TextForegroundColor = 0xFFFFFFFF;
 volatile u32 VideoCursorX;
 volatile u32 VideoCursorY;
 bool WrapperVerbose;
+u32 NeedsWrapAround;
 
 /* FUNCTIONS ******************************************************************/
 
@@ -46,11 +47,11 @@ void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY
     /* find position in font */
     int CharPosition = Character * ISO_CHAR_HEIGHT;
     /* actual printing stuff */
-    for(int i = 0; i < ISO_CHAR_HEIGHT; i++) {
+    for (int i = 0; i < ISO_CHAR_HEIGHT; i++) {
         u8 CharLine = iso_font[CharPosition];
-        for(int j = 0; j < ISO_CHAR_WIDTH; j++) {
+        for (int j = 0; j < ISO_CHAR_WIDTH; j++) {
             int f = CharLine >> j;
-            if((f & 1) == 1) {
+            if ((f & 1) == 1) {
                 /* foreground color */
                 PlacePixel(StartingPositionX + j, StartingPositionY + i, ForegroundColor);
             } else {
@@ -65,13 +66,18 @@ void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY
 /* Print to screen */
 static
 void PrintToScreen(const char *szBuffer) {
-    for(int i = 0; szBuffer[i] != '\0'; i++) {
-        if(szBuffer[i] == '\n') {
+    for (int i = 0; szBuffer[i] != '\0'; i++) {
+        if (szBuffer[i] == '\n') {
             VideoCursorX = VIDEO_STARTING_POSITION_X;
             VideoCursorY += ISO_CHAR_HEIGHT;
         } else {
             PlaceCharacter(szBuffer[i], VideoCursorX, VideoCursorY, TextBackgroundColor, TextForegroundColor);
-            VideoCursorX += ISO_CHAR_WIDTH;
+            if (VideoCursorX >= NeedsWrapAround) {
+                VideoCursorX = VIDEO_STARTING_POSITION_X;
+                VideoCursorY += ISO_CHAR_HEIGHT;
+            } else {
+                VideoCursorX += ISO_CHAR_WIDTH;
+            }
         }
     }
 }
@@ -79,7 +85,7 @@ void PrintToScreen(const char *szBuffer) {
 /* Print to serial port */
 static
 void PrintToSerial(const char *szBuffer) {
-    for(int i = 0; szBuffer[i] != '\0'; i++) {
+    for (int i = 0; szBuffer[i] != '\0'; i++) {
         outb(COM1, szBuffer[i]);
     }
 }
@@ -111,6 +117,7 @@ void ClearScreen(bool VerboseEnable) {
 void SetupScreen() {
     VideoCursorX = VIDEO_STARTING_POSITION_X;
     VideoCursorY = VIDEO_STARTING_POSITION_Y;
+    NeedsWrapAround = ((mach_bp->video.rowb / 4) - 1) - ISO_CHAR_WIDTH;
     /* Make serial look better */
     PrintToSerial("\n");
 }

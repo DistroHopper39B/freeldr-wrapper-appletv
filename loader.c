@@ -18,6 +18,10 @@ PBOOTINFO BootInfo;
 u8 *FreeldrPtr = NULL;
 u32 FreeldrLen = 0;
 
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 0
+#define VERSION_PATCH 1
+
 /* FUNCTIONS ******************************************************************/
 
 /* Create boot info struct */
@@ -85,7 +89,7 @@ void SetupCmdline() {
     if(strstr(mach_bp->cmdline, "-v")) {
         /* Enable verbose printing in freeldr-wrapper-appletv */
         ClearScreen(TRUE);
-        debug_printf("Booting in Verbose Mode.\n");
+        debug_printf("Booting in Verbose Mode. ");
     }
     /* Copy the unparsed Mach command line to FreeLoader */
     memcpy((void *) CMDLINE_LOC, mach_bp->cmdline, MACH_CMDLINE);
@@ -100,6 +104,17 @@ void c_entry(u32 BootArgPtr) {
     SetupScreen();
     /* Parse command line */
     SetupCmdline();
+
+    debug_printf("FreeLoader wrapper for Apple TV version %d.%d.%d (built with %s on %s %s) [%s@%s]\n",
+                 VERSION_MAJOR,
+                 VERSION_MINOR,
+                 VERSION_PATCH,
+                 __VERSION__,
+                 __DATE__,
+                 __TIME__,
+                 __BUILD_USER,
+                 __BUILD_HOST
+                 );
     /* Fixup Apple TV IDE controller */
     AppleTVFixupIdeController();
     /* Create the info structure and copy it to the correct location */
