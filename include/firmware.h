@@ -7,12 +7,12 @@
 
 extern int memcmp(const void *cs,const void *ct, size_t count);
 
-extern void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 addr, u64 len, u32 type);
 extern void FillMultibootMemoryMap(PBOOTINFO BootInfo);
 extern void PrintMultibootMemoryMap(PBOOTINFO BootInfo);
 extern void LegacyAcpiSmbiosFix();
 
-// acpi/smbios code from linux_code.h
+/* https://github.com/loop333/atv-bootloader/blob/master/linux_code.h *********/
+
 #define hi32(a) ((UINT32)((a) >> 32))
 #define lo32(a) ((UINT32)(a))
 

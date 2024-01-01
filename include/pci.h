@@ -1,7 +1,9 @@
-//
-// Created by distrohopper39b on 11/26/23.
-// This is a small PCI driver created to switch the Prog IF of the IDE controller.
-//
+/*
+ * PROJECT:     FreeLoader wrapper for Apple TV
+ * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * PURPOSE:     Header file for PCI functions for IDE controller fixup for the original Apple TV
+ * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
+ */
 
 #ifndef _PCI_H
 #define _PCI_H
@@ -11,9 +13,8 @@
 #define PCI_TYPE1_ADDRESS_PORT 0xCF8
 #define PCI_TYPE1_DATA_PORT 0xCFC
 
-//
-// PCI Class Codes
-//
+
+/* PCI Class Codes */
 #define PCI_CLASS_CODE_UNCLASSIFIED 0x0
 #define PCI_CLASS_CODE_MASS_STORAGE 0x1
 #define PCI_CLASS_CODE_NETWORK 0x2
@@ -39,10 +40,7 @@
 #define PCI_CLASS_CODE_RESERVED2 0x41
 #define PCI_CLASS_CODE_UNASSIGNED_CLASS 0xFF
 
-//
-// Mass storage controller subclasses
-//
-
+/* Mass storage class codes */
 #define PCI_MASS_STORAGE_SUBCLASS_CODE_SCSI_CONTROLLER 0x0
 #define PCI_MASS_STORAGE_SUBCLASS_CODE_IDE_CONTROLLER 0x1
 #define PCI_MASS_STORAGE_SUBCLASS_CODE_FLOPPY_CONTROLLER 0x2
@@ -56,11 +54,11 @@
 
 #define PCI_INVALID_DEVICE 0xFFFF
 
-typedef struct _pci_device {
-    u8 bus;
-    u8 slot;
-    u8 function;
-} pci_slot_info;
+typedef struct {
+    u8 Bus;
+    u8 Slot;
+    u8 Function;
+} PCIDEVICE, *PPCIDEVICE;
 
 extern void AppleTVFixupIdeController();
 

@@ -1,37 +1,41 @@
 #ifndef _TYPES_H
 #define _TYPES_H
 
-typedef signed char        int8_t;
-typedef short              int16_t;
-typedef int                int32_t;
-typedef long long          int64_t;
-typedef unsigned char      uint8_t;
-typedef unsigned short     uint16_t;
-typedef unsigned int       uint32_t;
-typedef unsigned long long uint64_t;
+typedef signed char         int8_t;
+typedef short               int16_t;
+typedef int                 int32_t;
+typedef long long           int64_t;
+typedef unsigned char       uint8_t;
+typedef unsigned short      uint16_t;
+typedef unsigned int        uint32_t;
+typedef unsigned long long  uint64_t;
 
-typedef __SIZE_TYPE__      size_t;
-typedef __UINTPTR_TYPE__ uintptr_t;
+typedef __SIZE_TYPE__       size_t;
+typedef __UINTPTR_TYPE__    uintptr_t;
 
-typedef short			   CHAR16;
-typedef void			   VOID;
-typedef unsigned long      UINTN;
-typedef uint8_t			   UINT8;
-typedef UINT8			   CHAR8;
-typedef int16_t			   INT16;
-typedef uint16_t		   UINT16;
-typedef int32_t			   INTN;
-typedef unsigned int	   UINT32;
-typedef int64_t			   INT64;
-typedef unsigned long long UINT64;
+typedef short			    CHAR16;
+typedef void			    VOID;
+typedef unsigned long       UINTN;
+typedef uint8_t			    UINT8;
+typedef UINT8			    CHAR8;
+typedef int16_t			    INT16;
+typedef uint16_t		    UINT16;
+typedef int32_t			    INTN;
+typedef unsigned int	    UINT32;
+typedef int64_t			    INT64;
+typedef unsigned long long  UINT64;
 
-typedef unsigned char      u8;
-typedef unsigned short     u16;
-typedef unsigned long      u32;
-typedef unsigned long long u64;
-typedef short s16;
-typedef char               bool;
-typedef u32 phys_addr_t;
+typedef unsigned char       u8;
+typedef unsigned short      u16;
+typedef unsigned long       u32;
+typedef unsigned long long  u64;
+typedef char                s8;
+typedef short               s16;
+typedef long                s32;
+typedef long long           s64;
+typedef char                bool;
+
+typedef unsigned char*      FRAMEBUFFER;
 
 #define UUID_SIZE 16
 

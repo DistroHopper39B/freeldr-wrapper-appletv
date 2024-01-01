@@ -1,3 +1,5 @@
+/* https://github.com/loop333/atv-bootloader/blob/master/utils.h **************/
+
 #ifndef _UTILS_H
 #define _UTILS_H
 

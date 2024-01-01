@@ -1,83 +1,73 @@
-//
-// Created by distrohopper39b on 7/4/23.
-// This is an attempt to rewrite the screen printing logic for atv-playground. The original code was messy and originally designed for the original Xbox, which is not targeted here.
-//
+/*
+ * PROJECT:     FreeLoader wrapper for Apple TV
+ * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * PURPOSE:     Screen printing functions for the original Apple TV
+ * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
+ */
+
+/* INCLUDES *******************************************************************/
 
 #include <fldrwrapper.h>
-
 #include <font.h>
 
-const u32 VideoCursorOrigX = 1;
-const u32 VideoCursorOrigY = 1;
+/* GLOBALS ********************************************************************/
+
+#define VIDEO_STARTING_POSITION_X 1
+#define VIDEO_STARTING_POSITION_Y 1
+
 volatile u32 TextBackgroundColor = 0x00000000;
 volatile u32 TextForegroundColor = 0xFFFFFFFF;
 volatile u32 VideoCursorX;
 volatile u32 VideoCursorY;
-volatile u32 VideoCursorRightX;
-volatile u32 VideoCursorRightY;
 bool WrapperVerbose;
 
-// Clear screen function
-void ClearScreen(bool VerboseEnable) {
-    memset((void *) mach_bp->video.addr, 0, mach_bp->video.rowb * mach_bp->video.height);
-    SetupScreen();
-    if(VerboseEnable) {
-        WrapperVerbose = TRUE;
-    } else {
-        WrapperVerbose = FALSE;
-    }
-}
+/* FUNCTIONS ******************************************************************/
 
-// Setup screen without clearing it
-void SetupScreen() {
-    VideoCursorX = VideoCursorOrigX;
-    VideoCursorY = VideoCursorOrigY;
-    VideoCursorRightX = (mach_bp->video.rowb / 4) - 7;
-    VideoCursorRightY = VideoCursorOrigY;
-    // Make serial look better
-    PrintToSerial("\n");
-}
-
-// Pixel placement code. The top left corner is located at (1, 1)
+/* Place pixel on screen */
+static
 void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue) {
-    // convert from 32-bit RGBA number to 4 8-bit numbers
-    u8 Red = (RgbaValue >> 24) & 0xFF;
-    u8 Green = (RgbaValue >> 16) & 0xFF;
-    u8 Blue = (RgbaValue >> 8) & 0xFF;
-    u8 Alpha = RgbaValue & 0xFF;
-    // find pixel address and correct top left pixel from (0, 0) to (1, 1)
-    u32 PixelStartingAddr = mach_bp->video.addr + ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * mach_bp->video.rowb);
+    /* convert from 32-bit RGBA number to 4 8-bit numbers */
+    u8 RedValue = (RgbaValue >> 24) & 0xFF;
+    u8 GreenValue = (RgbaValue >> 16) & 0xFF;
+    u8 BlueValue = (RgbaValue >> 8) & 0xFF;
+    u8 ReservedValue = RgbaValue & 0xFF;
+    /* find pixel address and correct top left pixel from (0, 0) to (1, 1) */
+    FRAMEBUFFER PixelStartingAddr = mach_bp->video.addr + ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * mach_bp->video.rowb);
     /* Apple TV linear frame buffer printing logic. */
-    memset((void *) PixelStartingAddr, Blue, 1); // blue
-    memset((void *) PixelStartingAddr + 1, Green, 1); // green
-    memset((void *) PixelStartingAddr + 2, Red, 1); // red
-    memset((void *) PixelStartingAddr + 3, Alpha, 1); // alpha
+    PixelStartingAddr[Blue] = BlueValue;
+    PixelStartingAddr[Green] = GreenValue;
+    PixelStartingAddr[Red] = RedValue;
+    PixelStartingAddr[Reserved] = ReservedValue;
 }
-// Character placement code
+
+/* Place character on screen */
+static
 void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY, u32 BackgroundColor, u32 ForegroundColor) {
-    // find position in font
+    /* find position in font */
     int CharPosition = Character * ISO_CHAR_HEIGHT;
-    // actual printing stuff
-    for(int i = 0; i < ISO_CHAR_HEIGHT; i++) { // print all rows (runs 16 times = 128 total)
+    /* actual printing stuff */
+    for(int i = 0; i < ISO_CHAR_HEIGHT; i++) {
         u8 CharLine = iso_font[CharPosition];
-        for(int j = 0; j < ISO_CHAR_WIDTH; j++) { // print 1 row of a character (runs 8 times)
+        for(int j = 0; j < ISO_CHAR_WIDTH; j++) {
             int f = CharLine >> j;
             if((f & 1) == 1) {
-                // foreground color
+                /* foreground color */
                 PlacePixel(StartingPositionX + j, StartingPositionY + i, ForegroundColor);
             } else {
-                // background color
+                /* background color */
                 PlacePixel(StartingPositionX + j, StartingPositionY + i, BackgroundColor);
             }
         }
         CharPosition++;
     }
 }
-// Actually print to the screen
+
+/* Print to screen */
+static
 void PrintToScreen(const char *szBuffer) {
     for(int i = 0; szBuffer[i] != '\0'; i++) {
         if(szBuffer[i] == '\n') {
-            VideoCursorX = VideoCursorOrigX;
+            VideoCursorX = VIDEO_STARTING_POSITION_X;
             VideoCursorY += ISO_CHAR_HEIGHT;
         } else {
             PlaceCharacter(szBuffer[i], VideoCursorX, VideoCursorY, TextBackgroundColor, TextForegroundColor);
@@ -86,20 +76,46 @@ void PrintToScreen(const char *szBuffer) {
     }
 }
 
-// Change colors of text on the fly.
-void ChangeColors(u32 Foreground, u32 Background) {
-    TextForegroundColor = Foreground;
-    TextBackgroundColor = Background;
-}
-
-// Print buffer to COM1
+/* Print to serial port */
+static
 void PrintToSerial(const char *szBuffer) {
     for(int i = 0; szBuffer[i] != '\0'; i++) {
         outb(COM1, szBuffer[i]);
     }
 }
 
-// print only if Verbose mode is specified.
+/* Change screen colors */
+void ChangeColors(u32 Foreground, u32 Background) {
+    TextForegroundColor = Foreground;
+    TextBackgroundColor = Background;
+}
+
+/* Clear the screen */
+void ClearScreen(bool VerboseEnable) {
+    /* Set all pixels to black */
+    FRAMEBUFFER FrameBuffer = mach_bp->video.addr;
+    for (int i = 0; i < (mach_bp->video.rowb * mach_bp->video.height); i++) {
+        FrameBuffer[i] = 0;
+    }
+    /* (Re)set screen */
+    SetupScreen();
+    /* Enable verbose mode */
+    if(VerboseEnable) {
+        WrapperVerbose = TRUE;
+    } else {
+        WrapperVerbose = FALSE;
+    }
+}
+
+/* Setup screen without clearing it */
+void SetupScreen() {
+    VideoCursorX = VIDEO_STARTING_POSITION_X;
+    VideoCursorY = VIDEO_STARTING_POSITION_Y;
+    /* Make serial look better */
+    PrintToSerial("\n");
+}
+
+/* print only if Verbose mode is specified. */
 void debug_printf(const char *szFormat, ...) {
     if(WrapperVerbose == TRUE) {
         char szBuffer[512 * 2];
@@ -119,7 +135,7 @@ void debug_printf(const char *szFormat, ...) {
     }
 }
 
-// print always
+/* print always */
 void printf(const char *szFormat, ...) {
     char szBuffer[512 * 2];
     u16 wLength = 0;

@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     FreeLoader wrapper for Apple TV
+ * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * PURPOSE:     Main header file for FreeLoader wrapper
+ * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
+ */
+
 #ifndef _FLDRWRAPPER_H
 #define _FLDRWRAPPER_H
 
@@ -6,15 +13,9 @@
 #include "utils.h"
 #include "console.h"
 #include "bootinfo.h"
-#include <firmware.h>
+#include "firmware.h"
 #include "pci.h"
 #include "ioports.h"
-
-// from loader.c
-extern void CreateBootInfo();
-extern u32 LoadFreeldr();
-extern void SetupCmdline(const char MachCmdLine[]);
-extern bool WrapperVerbose;
 
 // from assembly
 extern void JumpToFreeldr(u32 start);

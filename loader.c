@@ -1,40 +1,27 @@
+/*
+ * PROJECT:     FreeLoader wrapper for Apple TV
+ * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * PURPOSE:     Main loader functions for FreeLoader on the original Apple TV
+ * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
+ */
+
+/* INCLUDES *******************************************************************/
+
 #include <fldrwrapper.h>
 
-mach_boot_parms *mach_bp;
-PBOOTINFO BootInfo;
-u8 *FreeldrPtr = NULL;
-u32 FreeldrLen = 0;
-char *FrLdrCmdLine;
+/* GLOBALS ********************************************************************/
 
 #define MULTIBOOT_SEARCH 8192
 
-// C entry point.
-void c_entry(u32 args) {
-    // set up bootArgs
-    mach_bp = (mach_boot_parms *) args;
-    // set up screen
-    SetupScreen();
-    // Parse command line
-    SetupCmdline(mach_bp->cmdline);
-    // Fixup Apple TV IDE controller
-    AppleTVFixupIdeController();
-    // Create the info structure and copy it to the correct location
-    CreateBootInfo();
-    // Load freeldr into memory
-    printf("Loading FreeLoader...\n");
-    u32 EntryPoint = LoadFreeldr();
-    // Clone the ACPI and SMBIOS entries to low memory so that Windows detects them.
-    LegacyAcpiSmbiosFix();
-    // For debugging purposes
-    if(WrapperVerbose) {
-        sleep(2);
-        ClearScreen(FALSE);
-    }
-    // Jump to freeldr
-    JumpToFreeldr(EntryPoint);
-}
+mach_boot_params *mach_bp;
+PBOOTINFO BootInfo;
+u8 *FreeldrPtr = NULL;
+u32 FreeldrLen = 0;
 
-// Create boot struct for use with freeldr.
+/* FUNCTIONS ******************************************************************/
+
+/* Create boot info struct */
+static
 void CreateBootInfo() {
     BootInfo->MagicNumber = ATV_LOADER_MAGIC_NUMBER;
 
@@ -42,7 +29,7 @@ void CreateBootInfo() {
     FillMultibootMemoryMap(BootInfo);
     PrintMultibootMemoryMap(BootInfo);
 
-    BootInfo->VideoBaseAddr = mach_bp->video.addr;
+    BootInfo->VideoBaseAddr = (u32) mach_bp->video.addr;
     BootInfo->VideoPitch = mach_bp->video.rowb;
     BootInfo->VideoWidth = (mach_bp->video.rowb / 4);
     BootInfo->VideoHeight = mach_bp->video.height;
@@ -54,16 +41,16 @@ void CreateBootInfo() {
     memcpy((void *) BOOTINFO_LOC, BootInfo, sizeof(BOOTINFO));
 }
 
-// Validate executable header to be FreeLoader
+/* Validate FreeLoader segment */
+static
 u32 ValidateFreeldr() {
     u32 FreeldrOffset = 0;
-    // Find FreeLoader segment in the mach_kernel.
+    /* Find FreeLoader segment in the mach_kernel. */
     FreeldrPtr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__freeldr", &FreeldrLen);
-    // Look for FreeLoader magic number
+    /* Look for FreeLoader magic number */
     debug_printf("Looking for FreeLoader magic number...");
     for(size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
         u32 *current_addr = (u32 *) (FreeldrPtr + i);
-
         if (*current_addr == FREELDR_MAGIC_NUMBER) {
             debug_printf("Found magic number 0x%08X at offset 0x%lX\n", FREELDR_MAGIC_NUMBER, i);
             FreeldrOffset = i;
@@ -78,26 +65,56 @@ u32 ValidateFreeldr() {
     return FreeldrOffset;
 }
 
-// Load FreeLoader to the correct location in memory and calculate the entry point.
+/* Load FreeLoader to the correct location in memory and calculate the entry point. */
+static
 u32 LoadFreeldr() {
     u32 FreeldrOffset = ValidateFreeldr();
-    PFLDRHEADER hdr;
-    hdr = (PFLDRHEADER) (FreeldrPtr + FreeldrOffset);
-    // Copy FreeLoader into the specified location.
-    debug_printf("Copying FreeLoader to 0x%08X...", hdr->LoadAddress);
-    memcpy((void *) hdr->LoadAddress, FreeldrPtr, FreeldrLen);
+    PFLDRHEADER Header;
+    Header = (PFLDRHEADER) (FreeldrPtr + FreeldrOffset);
+    /* Copy FreeLoader into the specified location. */
+    debug_printf("Copying FreeLoader to 0x%08X...", Header->LoadAddress);
+    memcpy((void *) Header->LoadAddress, FreeldrPtr, FreeldrLen);
     debug_printf("done.\n");
-    return hdr->EntryPoint;
+    return Header->EntryPoint;
 }
 
-void SetupCmdline(const char MachCmdLine[]) {
-    FrLdrCmdLine = (char *) CMDLINE_LOC;
-    /* Check if we should boot to verbose mode */
-    if(strstr(MachCmdLine, "-v")) {
+/* Set up command line and enable verbose mode */
+static
+void SetupCmdline() {
+    /* Check if we should enable verbose mode */
+    if(strstr(mach_bp->cmdline, "-v")) {
         /* Enable verbose printing in freeldr-wrapper-appletv */
         ClearScreen(TRUE);
+        debug_printf("Booting in Verbose Mode.\n");
     }
     /* Copy the unparsed Mach command line to FreeLoader */
-    memcpy(FrLdrCmdLine, MachCmdLine, MACH_CMDLINE);
+    memcpy((void *) CMDLINE_LOC, mach_bp->cmdline, MACH_CMDLINE);
     debug_printf("Command line arguments: %s\n", CMDLINE_LOC);
+}
+
+/* C entry point. */
+void c_entry(u32 BootArgPtr) {
+    /* set up bootArgs */
+    mach_bp = (mach_boot_params *) BootArgPtr;
+    /* set up screen */
+    SetupScreen();
+    /* Parse command line */
+    SetupCmdline();
+    /* Fixup Apple TV IDE controller */
+    AppleTVFixupIdeController();
+    /* Create the info structure and copy it to the correct location */
+    CreateBootInfo();
+    /* Load freeldr into memory */
+    printf("Loading FreeLoader...\n");
+    u32 EntryPoint = LoadFreeldr();
+    /* Clone the ACPI and SMBIOS entries to low memory so that Windows detects them. */
+    LegacyAcpiSmbiosFix();
+    /* For debugging purposes */
+    if(WrapperVerbose) {
+        debug_printf("DEBUG: Pausing here for 5 seconds.");
+        sleep(5);
+        ClearScreen(FALSE);
+    }
+    /* Jump to freeldr */
+    JumpToFreeldr(EntryPoint);
 }

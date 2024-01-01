@@ -1,6 +1,9 @@
-//
-// Created by distrohopper39b on 11/28/23.
-//
+/*
+ * PROJECT:     FreeLoader wrapper for Apple TV
+ * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * PURPOSE:     Screen printing functions for the original Apple TV
+ * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
+ */
 
 #ifndef _IOPORTS_H
 #define _IOPORTS_H

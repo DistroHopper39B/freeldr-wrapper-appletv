@@ -1,3 +1,5 @@
+/* https://github.com/loop333/atv-bootloader/blob/master/utils.c **************/
+
 #include <fldrwrapper.h>
 
 /*
@@ -270,6 +272,8 @@ int memcmp(const void *cs,const void *ct, size_t count)
 		if ((res = *su1 - *su2) != 0) break;
 	return res;
 }
+
+/* https://github.com/loop333/atv-bootloader/blob/master/darwin_code.c ********/
 
 const struct section *getsectbynamefromheader(struct mach_header *mhp, const char *segname, const char *sectname)
 {

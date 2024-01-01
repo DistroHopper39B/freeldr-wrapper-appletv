@@ -1,9 +1,16 @@
-//
-// Created by distrohopper39b on 11/12/23.
-// Hardware functions for writing to devices.
-//
+/*
+ * PROJECT:     FreeLoader wrapper for Apple TV
+ * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * PURPOSE:     I/O functions for the original Apple TV
+ * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
+ */
+
+/* INCLUDES *******************************************************************/
 
 #include <fldrwrapper.h>
+
+/* FUNCTIONS ******************************************************************/
+
 void outb(uint16_t port, uint8_t val) {
     __asm__ __volatile__ ( "outb %0, %1" : : "a"(val), "Nd"(port) );
 }

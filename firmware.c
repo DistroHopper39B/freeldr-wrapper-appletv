@@ -1,15 +1,25 @@
-//
-// Created by distrohopper39b on 11/28/23.
-//
+/*
+ * PROJECT:     FreeLoader wrapper for Apple TV
+ * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * PURPOSE:     Various firmware functions for the original Apple TV
+ * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
+ */
+
+/* INCLUDES *********************************************************/
 
 #include <fldrwrapper.h>
 
-/**
+/* FUNCTIONS ********************************************************/
+
+/*
  * Convert EFI memory map to Multiboot memory map to be passed to freeldr.
  * This code is based on a Linux kernel patch submitted by Edgar Hucek and modified for use with a Multiboot
  * memory map.
+ * See https://github.com/loop333/atv-bootloader/blob/master/linux_code.c#L72.
  */
-// Add memory region to the multiboot memory map.
+
+/* Add memory region to the multiboot memory map. */
+static
 void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 Address, u64 Length, u32 Type) {
 
     u32 x = *NumberOfEntries;
@@ -26,7 +36,7 @@ void AddMemoryRegion(struct mmap_entry *map, u32 *NumberOfEntries, u64 Address, 
 
 }
 
-// Convert EFI memory map to Multiboot memory map.
+/* Convert EFI memory map to Multiboot memory map. */
 void FillMultibootMemoryMap(PBOOTINFO BootInfo) {
     u32 EfiNumberOfEntries, MultibootNumberOfEntries = 0, i;
     u64 start, end, size;
@@ -149,11 +159,12 @@ void PrintMultibootMemoryMap(PBOOTINFO BootInfo) {
 
 }
 
-/**
+/*
  * On EFI systems, such as the Apple TV, the ACPI and SMBIOS tables are in a different location than where Windows and
  * other legacy OSes expect them to be. We need to copy them to the correct memory regions here.
- * This code is based on atv-bootloader.
+ * See https://github.com/loop333/atv-bootloader/blob/master/elilo_code.c#L266
  */
+
 void LegacyAcpiSmbiosFix() {
     efi_system_table_t	*system_table;
     efi_config_table_t	*config_tables;
@@ -163,6 +174,12 @@ void LegacyAcpiSmbiosFix() {
     system_table		= (efi_system_table_t*)mach_bp->efi_sys_tbl;
     num_config_tables	= system_table->nr_tables;
     config_tables		= (efi_config_table_t*)system_table->tables;
+
+    efitab.mps = NULL;
+    efitab.acpi20 = NULL;
+    efitab.acpi = NULL;
+    efitab.smbios = NULL;
+    efitab.uga = NULL;
 
     // Let's see what config tables the efi firmware passed to us.
     for (i = 0; i < num_config_tables; i++) {
@@ -197,17 +214,15 @@ void LegacyAcpiSmbiosFix() {
     u32	*rsdp_low_mem   = (u32 *) ACPI_TABLE_LOW;
     u32	*smbios_low_mem = (u32 *) SMBIOS_TABLE_LOW;
     //
-    debug_printf("Cloning ACPI entry from 0x%08X to 0x%lX...", efitab.acpi20, rsdp_low_mem);
+    debug_printf("Cloning ACPI entry from 0x%08X to 0x%lX...", efitab.acpi, rsdp_low_mem);
     // We need at copy the RSDP down low so linux can find it
     // copy RSDP table entry from efi location to low mem location
-    memcpy((void *) rsdp_low_mem, efitab.acpi20, sizeof(acpi_rsdp_t) );
-    debug_printf("acpi location = 0x%08X\n", *rsdp_low_mem);
+    memcpy((void *) rsdp_low_mem, efitab.acpi, sizeof(acpi_rsdp_t) );
     debug_printf("done.\n");
 
     debug_printf("Cloning SMBIOS entry from 0x%08X to 0x%lX...", efitab.smbios, smbios_low_mem);
     // We need at copy the SMBIOS Table Entry Point down low so linux can find it
     // copy SMBIOS Table Entry Point from efi location to low mem location
     memcpy((void *) smbios_low_mem, efitab.smbios, sizeof(smbios_entry_t) );
-    debug_printf("smbios location = 0x%08X\n", *smbios_low_mem);
     debug_printf("done.\n");
 }

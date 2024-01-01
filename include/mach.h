@@ -1,3 +1,5 @@
+/* https://github.com/loop333/atv-bootloader/blob/master/darwin_code.h ********/
+
 #ifndef _MACH_H
 #define _MACH_H
 
@@ -11,37 +13,37 @@
 #define FB_TEXT_MODE  2
 #define MACH_CMDLINE	1024
 //
-typedef struct _mach_video_parms {
-	uint32_t addr;
-	uint32_t disp;
-	uint32_t rowb;
-	uint32_t width;
-	uint32_t height;
-	uint32_t depth;
-} __attribute__((aligned(4))) mach_video_parms;
+typedef struct _mach_video_params {
+	FRAMEBUFFER addr;
+	uint32_t    disp;
+	uint32_t    rowb;
+	uint32_t    width;
+	uint32_t    height;
+	uint32_t    depth;
+} __attribute__((aligned(4))) mach_video_params;
 //
-typedef struct _mach_boot_parms {
-    uint16_t         rev;
-    uint16_t         ver;
-    char             cmdline[MACH_CMDLINE];
-    uint32_t         efi_mem_map;           // Pointer to UEFI memory map
-    uint32_t         efi_mem_map_size;      // Size of UEFI memory map
-    uint32_t         efi_mem_desc_size;     // Size of each UEFI memory descriptor
-    uint32_t         efi_mem_desc_ver;      // UEFI memory descriptor version
-    mach_video_parms video;
-    uint32_t         devtree_ptr;			// Base of flattened device tree
-    uint32_t         devtree_len;			// Length of flattened tree
-    uint32_t         kaddr;                 // beginning of kernel .text segment?
-    uint32_t         ksize;                 // size of text + data + efi?
-    uint32_t         efi_runtime_page;
-    uint32_t         efi_runtime_page_count;
-    efi_system_table_t         *efi_sys_tbl;
-    uint8_t          efi_mode;
-    uint8_t          __reserved1[3];
-    uint32_t         __reserved2[7];
-} __attribute__((aligned(4))) mach_boot_parms;
+typedef struct _mach_boot_params {
+    uint16_t            rev;
+    uint16_t            ver;
+    char                cmdline[MACH_CMDLINE];
+    uint32_t            efi_mem_map;           // Pointer to UEFI memory map
+    uint32_t            efi_mem_map_size;      // Size of UEFI memory map
+    uint32_t            efi_mem_desc_size;     // Size of each UEFI memory descriptor
+    uint32_t            efi_mem_desc_ver;      // UEFI memory descriptor version
+    mach_video_params   video;
+    uint32_t            devtree_ptr;			// Base of flattened device tree
+    uint32_t            devtree_len;			// Length of flattened tree
+    uint32_t            kaddr;                 // beginning of kernel .text segment?
+    uint32_t            ksize;                 // size of text + data + efi?
+    uint32_t            efi_runtime_page;
+    uint32_t            efi_runtime_page_count;
+    efi_system_table_t  *efi_sys_tbl;
+    uint8_t             efi_mode;
+    uint8_t             __reserved1[3];
+    uint32_t            __reserved2[7];
+} __attribute__((aligned(4))) mach_boot_params;
 //
-extern mach_boot_parms *mach_bp;
+extern mach_boot_params *mach_bp;
 /**********************************************************************/
 // defined by mach-o ld linker
 extern struct mach_header _mh_execute_header;
