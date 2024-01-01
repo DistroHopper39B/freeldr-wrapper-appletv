@@ -160,6 +160,7 @@ PPCIDEVICE DetectPciIdeController() {
                     PciDevice->Bus = Bus;
                     PciDevice->Slot = Slot;
                     PciDevice->Function = Func;
+                    break;
                 }
             }
         }
