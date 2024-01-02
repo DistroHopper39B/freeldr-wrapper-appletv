@@ -117,7 +117,7 @@ void ClearScreen(bool VerboseEnable) {
 void SetupScreen() {
     VideoCursorX = VIDEO_STARTING_POSITION_X;
     VideoCursorY = VIDEO_STARTING_POSITION_Y;
-    NeedsWrapAround = ((mach_bp->video.rowb / 4) - 1) - ISO_CHAR_WIDTH;
+    NeedsWrapAround = ((mach_bp->video.rowb / 4) - VIDEO_STARTING_POSITION_X) - ISO_CHAR_WIDTH;
     /* Make serial look better */
     PrintToSerial("\n");
 }

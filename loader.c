@@ -22,6 +22,8 @@ u32 FreeldrLen = 0;
 #define VERSION_MINOR 0
 #define VERSION_PATCH 1
 
+char DebugPortString[] = "debug=debugport=screen ";
+
 /* FUNCTIONS ******************************************************************/
 
 /* Create boot info struct */
@@ -85,14 +87,18 @@ u32 LoadFreeldr() {
 /* Set up command line and enable verbose mode */
 static
 void SetupCmdline() {
+    char *CmdLine = (char *) CMDLINE_LOC;
     /* Check if we should enable verbose mode */
-    if(strstr(mach_bp->cmdline, "-v")) {
+    if(strstr(mach_bp->cmdline, "-v") || strstr(mach_bp->cmdline, "-s")) {
         /* Enable verbose printing in freeldr-wrapper-appletv */
         ClearScreen(TRUE);
         debug_printf("Booting in Verbose Mode. ");
+        /* Add screen debug to command line */
+        memcpy(CmdLine, DebugPortString, sizeof(DebugPortString));
+        CmdLine += sizeof(DebugPortString) - 1;
     }
     /* Copy the unparsed Mach command line to FreeLoader */
-    memcpy((void *) CMDLINE_LOC, mach_bp->cmdline, MACH_CMDLINE);
+    memcpy(CmdLine, mach_bp->cmdline, MACH_CMDLINE);
     debug_printf("Command line arguments: %s\n", CMDLINE_LOC);
 }
 
@@ -112,8 +118,8 @@ void c_entry(u32 BootArgPtr) {
                  __VERSION__,
                  __DATE__,
                  __TIME__,
-                 __BUILD_USER,
-                 __BUILD_HOST
+                 __BUILD_USER__,
+                 __BUILD_HOST__
                  );
     /* Fixup Apple TV IDE controller */
     AppleTVFixupIdeController();

@@ -100,12 +100,13 @@ To set up the USB drive, follow these steps:
 9. Copy `boot.efi`. `mach_kernel`, `com.apple.Boot.plist`, `BootLogo.png`, and the `System` folder to the root of the USB drive.
 10. Eject the USB drive.
 
+### Configuring bootloader
+See [CONFIGURATION.md](CONFIGURATION.md).
 ### Setting up Windows/ReactOS
 More detailed instructions to follow. Basically,
 [you have to remove the hard drive from the Apple TV](https://www.ifixit.com/Guide/Apple+TV+1st+Generation+Hard+Drive+Replacement/4799),
-install Windows or ReactOS on it through any one of a variety of methods, and reinstall it. As of 11/26/2023, the expected
-behavior with [the unoffical ReactOS fork](https://github.com/distrohopper39b/reactos) is a black screen after the
-menu appears and a dozen or so DLLs load. 
+install Windows or ReactOS on it through any one of a variety of methods, and reinstall it. As of 1/2/2024, the expected
+behavior is getting to the desktop, but since PCI is broken, it's impossible to actually control the system.
 ## Special Thanks
 - [The_DarkFire_](https://github.com/DarkFire01/) for helping me with this process and answering my stupid questions
 - The developers of [atv-bootloader](https://github.com/loop333/atv-bootloader) and its predecessors
