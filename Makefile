@@ -36,19 +36,15 @@ LDFLAGS := -static \
            -sectalign __DATA __bss 0x1000 \
            -sectcreate __TEXT __freeldr $(FREELDR_SYS) \
 
-# Include directories for headers
-INCLUDE_DIR = include
 
 DEFINES := -D__BUILD_USER__=\"$(USER)\" -D__BUILD_HOST__=\"$(HOST)\"
 
 CFLAGS := -Wall -nostdlib -fno-stack-protector -fno-builtin -O0 --target=$(TARGET) -Iinclude $(DEFINES)
 
-ASM_FLAGS := -DASSEMBLER $(CFLAGS)
-
 OBJS = asm.o console.o utils.o vsprintf.o loader.o ioports.o pci.o firmware.o
 
 %.o: %.S
-	$(CC) $(ASM_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 mach_kernel: $(OBJS)
