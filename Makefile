@@ -8,6 +8,9 @@
 USER = $(shell whoami)
 HOST = $(shell hostname)
 
+# What freeldr.sys we are using
+FREELDR_SYS :=
+
 # Check what OS we're running. Should work on Linux and macOS.
 OSTYPE = $(shell uname)
 
@@ -25,15 +28,13 @@ else
 endif
 
 # Flags for mach-o linker
-LDFLAGS := -static -force_cpusubtype_ALL \
-               -segalign 0x1000 -segaddr __TEXT 0x00400000 \
-               -sectalign __TEXT __text 0x1000 \
-               -sectalign __DATA __common 0x1000 \
-               -sectalign __DATA __bss 0x1000 \
-               -sectcreate __PRELINK __text /dev/null \
-               -sectcreate __PRELINK __symtab /dev/null \
-               -sectcreate __PRELINK __info /dev/null \
-               -sectcreate __TEXT __freeldr freeldr.sys \
+LDFLAGS := -static \
+           -segalign 0x1000 \
+           -segaddr __TEXT 0x00400000 \
+           -sectalign __TEXT __text 0x1000 \
+           -sectalign __DATA __common 0x1000 \
+           -sectalign __DATA __bss 0x1000 \
+           -sectcreate __TEXT __freeldr $(FREELDR_SYS) \
 
 # Include directories for headers
 INCLUDE_DIR = include

@@ -28,3 +28,5 @@ loader logging)
 verbose mode, and holding Command/Windows-V at boot has the same effect.
 * `-s`: This enables debug printing to the screen in FreeLoader and this loader. In Mac OS X, this argument is used for
 single-user mode, and holding Command/Windows-S at boot has the same effect.
+
+###### *TODO: Investigate `rdbase=` and `rdoffset=`*

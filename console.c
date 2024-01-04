@@ -106,7 +106,7 @@ void ClearScreen(bool VerboseEnable) {
     /* (Re)set screen */
     SetupScreen();
     /* Enable verbose mode */
-    if(VerboseEnable) {
+    if (VerboseEnable) {
         WrapperVerbose = TRUE;
     } else {
         WrapperVerbose = FALSE;
@@ -124,7 +124,7 @@ void SetupScreen() {
 
 /* print only if Verbose mode is specified. */
 void debug_printf(const char *szFormat, ...) {
-    if(WrapperVerbose == TRUE) {
+    if (WrapperVerbose) {
         char szBuffer[512 * 2];
         u16 wLength = 0;
         va_list argList;

@@ -1,7 +1,7 @@
 #
 # PROJECT:		FreeLoader wrapper for Apple TV
 # LICENSE:		GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
-# PURPOSE:		Makefile for FreeLoader wrapper for original Apple TV
+# PURPOSE:		Assembly functions for FreeLoader wrapper for original Apple TV
 # COPYRIGHT:	Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
 #
 

@@ -47,7 +47,7 @@ void FillMultibootMemoryMap(PBOOTINFO BootInfo) {
     debug_printf("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
     MultibootMapEntry = (struct mmap_entry *) BootInfo->MemoryMapAddr;
 
-    for(i = 0, p = (efi_memory_desc_t *) mach_bp->efi_mem_map; i < EfiNumberOfEntries; i++) {
+    for (i = 0, p = (efi_memory_desc_t *) mach_bp->efi_mem_map; i < EfiNumberOfEntries; i++) {
         md = p;
         switch (md->type) {
             // ACPI tables -- to be preserved by loader/OS until ACPI is enable

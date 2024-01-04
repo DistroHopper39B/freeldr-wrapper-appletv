@@ -38,8 +38,7 @@ This is the easiest way to build `freeldr-wrapper-appletv` and will work on macO
 1. Install the Xcode Command Line Tools if you haven't already by typing `xcode-select --install` into Terminal
 2. Build FreeLoader (see above)
 3. Clone/download this repository: `git clone https://github.com/DistroHopper39B/freeldr-wrapper-appletv && cd freeldr-wrapper-appletv`
-4. Copy `freeldr.sys` into the `freeldr-wrapper-appletv` directory
-5. Run `make`
+5. Run `make FREELDR_SYS=/path/to/freeldr.sys`, replacing `/path/to/freeldr.sys` with your actual path.
 
 You will now have a `mach_kernel` file.
 

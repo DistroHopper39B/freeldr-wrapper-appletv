@@ -55,7 +55,7 @@ u32 ValidateFreeldr() {
     FreeldrPtr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__freeldr", &FreeldrLen);
     /* Look for FreeLoader magic number */
     debug_printf("Looking for FreeLoader magic number...");
-    for(size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
+    for (size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
         u32 *current_addr = (u32 *) (FreeldrPtr + i);
         if (*current_addr == FREELDR_MAGIC_NUMBER) {
             debug_printf("Found magic number 0x%08X at offset 0x%lX\n", FREELDR_MAGIC_NUMBER, i);
@@ -63,7 +63,7 @@ u32 ValidateFreeldr() {
             break;
         }
     }
-    if(FreeldrOffset == 0) {
+    if (FreeldrOffset == 0) {
         ChangeColors(0xFFFF0000, 0x00000000);
         printf("FATAL: Version of FreeLoader corrupted or not for Apple TV!\n");
         fail();
@@ -89,7 +89,7 @@ static
 void SetupCmdline() {
     char *CmdLine = (char *) CMDLINE_LOC;
     /* Check if we should enable verbose mode */
-    if(strstr(mach_bp->cmdline, "-v") || strstr(mach_bp->cmdline, "-s")) {
+    if (strstr(mach_bp->cmdline, "-v") || strstr(mach_bp->cmdline, "-s")) {
         /* Enable verbose printing in freeldr-wrapper-appletv */
         ClearScreen(TRUE);
         debug_printf("Booting in Verbose Mode. ");
@@ -131,7 +131,7 @@ void c_entry(u32 BootArgPtr) {
     /* Clone the ACPI and SMBIOS entries to low memory so that Windows detects them. */
     LegacyAcpiSmbiosFix();
     /* For debugging purposes */
-    if(WrapperVerbose) {
+    if (WrapperVerbose) {
         debug_printf("DEBUG: Pausing here for 5 seconds.");
         sleep(5);
         ClearScreen(FALSE);
