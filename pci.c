@@ -160,11 +160,15 @@ PPCIDEVICE DetectPciIdeController() {
                     PciDevice->Bus = Bus;
                     PciDevice->Slot = Slot;
                     PciDevice->Function = Func;
-                    break;
+                    goto Done;
                 }
             }
         }
     }
+    printf("No IDE controller found, this probably won't work.\n");
+    return NULL;
+
+    Done:
     return PciDevice;
 }
 
