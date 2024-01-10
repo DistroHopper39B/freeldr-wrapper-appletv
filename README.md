@@ -115,3 +115,11 @@ behavior is getting to the desktop, but since PCI is broken, it's impossible to 
   - Edgar (gimli) Hucek for the first Linux bootloader, `mach_linux_boot`
 - [The OSDev wiki](https://wiki.osdev.org) for helping with my PCI IDE hack
 - [The ReactOS developers](https://github.com/reactos/reactos/graphs/contributors) for creating FreeLoader
+
+## License
+The majority of this project is licensed under the [MIT license](LICENSE.mit). However, since some files are sourced
+from [atv-bootloader](https://github.com/loop333/atv-bootloader) and the [Linux kernel](https://github.com/torvalds/linux),
+both GPL-2.0-only projects, the project is distributed under the GPLv2. The FreeLoader boot info header is distributed
+under the GPL-2.0-or-later license for its inclusion in FreeLoader.
+
+TODO: Use/create MIT-able `vsprintf` so that base functionality does not require GPL to be used.

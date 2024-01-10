@@ -43,11 +43,11 @@ void FillMultibootMemoryMap(PBOOTINFO BootInfo) {
     efi_memory_desc_t *md, *p;
     struct mmap_entry *MultibootMapEntry;
 
-    EfiNumberOfEntries = mach_bp->efi_mem_map_size / mach_bp->efi_mem_desc_size;
+    EfiNumberOfEntries = BootArgs->EfiMemoryMapSize / BootArgs->EfiMemoryDescriptorSize;
     debug_printf("Number of EFI memory map entries: %i\n", EfiNumberOfEntries);
     MultibootMapEntry = (struct mmap_entry *) BootInfo->MemoryMapAddr;
 
-    for (i = 0, p = (efi_memory_desc_t *) mach_bp->efi_mem_map; i < EfiNumberOfEntries; i++) {
+    for (i = 0, p = (efi_memory_desc_t *) BootArgs->EfiMemoryMap; i < EfiNumberOfEntries; i++) {
         md = p;
         switch (md->type) {
             // ACPI tables -- to be preserved by loader/OS until ACPI is enable
@@ -119,7 +119,7 @@ void FillMultibootMemoryMap(PBOOTINFO BootInfo) {
                                 MULTIBOOT_MEMORY_RESERVED);
                 break;
         }
-        p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, mach_bp->efi_mem_desc_size);
+        p = (efi_memory_desc_t *) NextEFIMemoryDescriptor(p, BootArgs->EfiMemoryDescriptorSize);
     }
     debug_printf("Number of multiboot entries: %i\n", MultibootNumberOfEntries);
     BootInfo->MemoryMapSize = sizeof(struct mmap_entry) * MultibootNumberOfEntries;
@@ -127,6 +127,8 @@ void FillMultibootMemoryMap(PBOOTINFO BootInfo) {
 }
 
 void PrintMultibootMemoryMap(PBOOTINFO BootInfo) {
+    debug_printf("Dumping Multiboot memory map...\n");
+
     int	i;
     struct mmap_entry *MultibootMapEntry;
     MultibootMapEntry = (struct mmap_entry *) BootInfo->MemoryMapAddr;
@@ -171,7 +173,7 @@ void LegacyAcpiSmbiosFix() {
     efi_tables_t efitab;
     u32					i, num_config_tables;
 
-    system_table		= (efi_system_table_t*)mach_bp->efi_sys_tbl;
+    system_table		= (efi_system_table_t*)BootArgs->EfiSystemTable;
     num_config_tables	= system_table->nr_tables;
     config_tables		= (efi_config_table_t*)system_table->tables;
 

@@ -1,6 +1,6 @@
 /*
  * PROJECT:     FreeLoader wrapper for Apple TV
- * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
  * PURPOSE:     Main loader functions for FreeLoader on the original Apple TV
  * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
  */
@@ -13,14 +13,14 @@
 
 #define MULTIBOOT_SEARCH 8192
 
-mach_boot_params *mach_bp;
+PMACH_BOOTARGS BootArgs;
 PBOOTINFO BootInfo;
 u8 *FreeldrPtr = NULL;
 u32 FreeldrLen = 0;
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 0
-#define VERSION_PATCH 1
+#define VERSION_PATCH 2
 
 char DebugPortString[] = "debug=debugport=screen ";
 
@@ -35,13 +35,13 @@ void CreateBootInfo() {
     FillMultibootMemoryMap(BootInfo);
     PrintMultibootMemoryMap(BootInfo);
 
-    BootInfo->VideoBaseAddr = (u32) mach_bp->video.addr;
-    BootInfo->VideoPitch = mach_bp->video.rowb;
-    BootInfo->VideoWidth = (mach_bp->video.rowb / 4);
-    BootInfo->VideoHeight = mach_bp->video.height;
-    BootInfo->VideoDepth = mach_bp->video.depth;
+    BootInfo->VideoBaseAddr = BootArgs->Video.BaseAddress;
+    BootInfo->VideoPitch = BootArgs->Video.Pitch;
+    BootInfo->VideoWidth = (BootArgs->Video.Pitch / 4);
+    BootInfo->VideoHeight = BootArgs->Video.Height;
+    BootInfo->VideoDepth = BootArgs->Video.Depth;
 
-    BootInfo->GlobalSystemTable = (u32) mach_bp->efi_sys_tbl;
+    BootInfo->GlobalSystemTable = BootArgs->EfiSystemTable;
 
     /* Copy bootinfo to proper location */
     memcpy((void *) BOOTINFO_LOC, BootInfo, sizeof(BOOTINFO));
@@ -52,7 +52,8 @@ static
 u32 ValidateFreeldr() {
     u32 FreeldrOffset = 0;
     /* Find FreeLoader segment in the mach_kernel. */
-    FreeldrPtr = (u8 *) getsectdatafromheader(&_mh_execute_header, "__TEXT", "__freeldr", &FreeldrLen);
+    FreeldrPtr = GetSectionDataFromHeader(&_mh_execute_header, "__TEXT", "__freeldr",
+                                          &FreeldrLen);
     /* Look for FreeLoader magic number */
     debug_printf("Looking for FreeLoader magic number...");
     for (size_t i = 0; i < MULTIBOOT_SEARCH; i += 4) {
@@ -64,7 +65,6 @@ u32 ValidateFreeldr() {
         }
     }
     if (FreeldrOffset == 0) {
-        ChangeColors(0xFFFF0000, 0x00000000);
         printf("FATAL: Version of FreeLoader corrupted or not for Apple TV!\n");
         fail();
     }
@@ -89,7 +89,7 @@ static
 void SetupCmdline() {
     char *CmdLine = (char *) CMDLINE_LOC;
     /* Check if we should enable verbose mode */
-    if (strstr(mach_bp->cmdline, "-v") || strstr(mach_bp->cmdline, "-s")) {
+    if (strstr(BootArgs->CmdLine, "-v") || strstr(BootArgs->CmdLine, "-s")) {
         /* Enable verbose printing in freeldr-wrapper-appletv */
         ClearScreen(TRUE);
         debug_printf("Booting in Verbose Mode. ");
@@ -98,14 +98,14 @@ void SetupCmdline() {
         CmdLine += sizeof(DebugPortString) - 1;
     }
     /* Copy the unparsed Mach command line to FreeLoader */
-    memcpy(CmdLine, mach_bp->cmdline, MACH_CMDLINE);
+    memcpy(CmdLine, BootArgs->CmdLine, MACH_CMDLINE);
     debug_printf("Command line arguments: %s\n", CMDLINE_LOC);
 }
 
 /* C entry point. */
-void c_entry(u32 BootArgPtr) {
+void WrapperInit(u32 BootArgPtr) {
     /* set up bootArgs */
-    mach_bp = (mach_boot_params *) BootArgPtr;
+    BootArgs = (PMACH_BOOTARGS) BootArgPtr;
     /* set up screen */
     SetupScreen();
     /* Parse command line */
@@ -132,7 +132,7 @@ void c_entry(u32 BootArgPtr) {
     LegacyAcpiSmbiosFix();
     /* For debugging purposes */
     if (WrapperVerbose) {
-        debug_printf("DEBUG: Pausing here for 5 seconds.");
+        debug_printf("DEBUG: Pausing here for 5 seconds.\n");
         sleep(5);
         ClearScreen(FALSE);
     }

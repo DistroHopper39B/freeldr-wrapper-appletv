@@ -1,6 +1,6 @@
 /*
  * PROJECT:     FreeLoader wrapper for Apple TV
- * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
  * PURPOSE:     Screen printing functions for the original Apple TV
  * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
  */
@@ -33,7 +33,8 @@ void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue) {
     u8 BlueValue = (RgbaValue >> 8) & 0xFF;
     u8 ReservedValue = RgbaValue & 0xFF;
     /* find pixel address and correct top left pixel from (0, 0) to (1, 1) */
-    FRAMEBUFFER PixelStartingAddr = mach_bp->video.addr + ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * mach_bp->video.rowb);
+    FRAMEBUFFER PixelStartingAddr = ((FRAMEBUFFER) BootArgs->Video.BaseAddress) +
+            ((PixelLocationX - 1) * 4) + ((PixelLocationY - 1) * BootArgs->Video.Pitch);
     /* Apple TV linear frame buffer printing logic. */
     PixelStartingAddr[Blue] = BlueValue;
     PixelStartingAddr[Green] = GreenValue;
@@ -43,7 +44,8 @@ void PlacePixel(u32 PixelLocationX, u32 PixelLocationY, u32 RgbaValue) {
 
 /* Place character on screen */
 static
-void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY, u32 BackgroundColor, u32 ForegroundColor) {
+void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY,
+                    u32 BackgroundColor, u32 ForegroundColor) {
     /* find position in font */
     int CharPosition = Character * ISO_CHAR_HEIGHT;
     /* actual printing stuff */
@@ -53,10 +55,12 @@ void PlaceCharacter(char Character, u32 StartingPositionX, u32 StartingPositionY
             int f = CharLine >> j;
             if ((f & 1) == 1) {
                 /* foreground color */
-                PlacePixel(StartingPositionX + j, StartingPositionY + i, ForegroundColor);
+                PlacePixel(StartingPositionX + j, StartingPositionY + i,
+                           ForegroundColor);
             } else {
                 /* background color */
-                PlacePixel(StartingPositionX + j, StartingPositionY + i, BackgroundColor);
+                PlacePixel(StartingPositionX + j, StartingPositionY + i,
+                           BackgroundColor);
             }
         }
         CharPosition++;
@@ -71,7 +75,9 @@ void PrintToScreen(const char *szBuffer) {
             VideoCursorX = VIDEO_STARTING_POSITION_X;
             VideoCursorY += ISO_CHAR_HEIGHT;
         } else {
-            PlaceCharacter(szBuffer[i], VideoCursorX, VideoCursorY, TextBackgroundColor, TextForegroundColor);
+            PlaceCharacter(szBuffer[i], VideoCursorX,
+                           VideoCursorY, TextBackgroundColor,
+                           TextForegroundColor);
             if (VideoCursorX >= NeedsWrapAround) {
                 VideoCursorX = VIDEO_STARTING_POSITION_X;
                 VideoCursorY += ISO_CHAR_HEIGHT;
@@ -99,8 +105,8 @@ void ChangeColors(u32 Foreground, u32 Background) {
 /* Clear the screen */
 void ClearScreen(bool VerboseEnable) {
     /* Set all pixels to black */
-    FRAMEBUFFER FrameBuffer = mach_bp->video.addr;
-    for (int i = 0; i < (mach_bp->video.rowb * mach_bp->video.height); i++) {
+    FRAMEBUFFER FrameBuffer = (FRAMEBUFFER) BootArgs->Video.BaseAddress;
+    for (int i = 0; i < (BootArgs->Video.Pitch * BootArgs->Video.Height); i++) {
         FrameBuffer[i] = 0;
     }
     /* (Re)set screen */
@@ -117,7 +123,7 @@ void ClearScreen(bool VerboseEnable) {
 void SetupScreen() {
     VideoCursorX = VIDEO_STARTING_POSITION_X;
     VideoCursorY = VIDEO_STARTING_POSITION_Y;
-    NeedsWrapAround = ((mach_bp->video.rowb / 4) - VIDEO_STARTING_POSITION_X) - ISO_CHAR_WIDTH;
+    NeedsWrapAround = ((BootArgs->Video.Pitch / 4) - VIDEO_STARTING_POSITION_X) - ISO_CHAR_WIDTH;
     /* Make serial look better */
     PrintToSerial("\n");
 }

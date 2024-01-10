@@ -1,6 +1,6 @@
 /*
  * PROJECT:     FreeLoader wrapper for Apple TV
- * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
  * PURPOSE:     PCI functions for IDE controller fixup for the original Apple TV
  * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
  */
@@ -165,7 +165,7 @@ PPCIDEVICE DetectPciIdeController() {
             }
         }
     }
-    printf("No IDE controller found, this probably won't work.\n");
+    printf("No IDE controller found, are you running this on a normal Mac?\n");
     return NULL;
 
     Done:

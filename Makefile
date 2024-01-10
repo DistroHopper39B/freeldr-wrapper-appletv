@@ -1,6 +1,6 @@
 #
 # PROJECT:		FreeLoader wrapper for Apple TV
-# LICENSE:		GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+# LICENSE:		MIT (https://spdx.org/licenses/MIT)
 # PURPOSE:		Makefile for FreeLoader wrapper for original Apple TV
 # COPYRIGHT:	Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
 #
@@ -41,7 +41,7 @@ DEFINES := -D__BUILD_USER__=\"$(USER)\" -D__BUILD_HOST__=\"$(HOST)\"
 
 CFLAGS := -Wall -nostdlib -fno-stack-protector -fno-builtin -O0 --target=$(TARGET) -Iinclude $(DEFINES)
 
-OBJS = asm.o console.o utils.o vsprintf.o loader.o ioports.o pci.o firmware.o
+OBJS = asm.o console.o utils.o vsprintf.o loader.o ioports.o pci.o firmware.o macho.o
 
 %.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@

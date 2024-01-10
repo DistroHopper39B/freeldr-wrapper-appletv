@@ -1,6 +1,6 @@
 /*
  * PROJECT:     FreeLoader wrapper for Apple TV
- * LICENSE:     GPL-2.0-only (https://spdx.org/licenses/GPL-2.0-only)
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
  * PURPOSE:     Header file for screen printing functions for the original Apple TV
  * COPYRIGHT:   Copyright 2023-2024 DistroHopper39B (distrohopper39b.business@gmail.com)
  */
