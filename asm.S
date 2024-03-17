@@ -29,7 +29,7 @@ _fail:
     hlt
 
 # Jump to multiboot code.
-# void JumpToFreeldr(u32 start);
+# void JumpToFreeldr(musl_u32 start);
 _JumpToFreeldr:
     # Execute freeldr finally!
     call *4(%esp)

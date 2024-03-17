@@ -1,3 +1,8 @@
+# THIS PROJECT IS OBSOLETE!
+### I recently added support for building a Mach-O binary directly within the [ReactOS unofficial fork](https://github.com/DistroHopper39B/reactos). Follow the instructions below for building `freeldr.sys` to build it; you will get a file called `mach_kernel` which you can copy to a USB directly as described below.
+### This repository is only here for historical purposes.
+
+# ORIGINAL README as of 12/26/2023
 # freeldr-wrapper-appletv
 ## **THIS PROJECT IS NOT FINISHED OR PRODUCTION READY. DO NOT ATTEMPT TO USE THIS TO INSTALL WINDOWS ON YOUR APPLE TV. IT WILL NOT WORK.**
 <img src=".assets/RosRealHardware.png" width="600" alt="ReactOS successfully booted on real hardware">

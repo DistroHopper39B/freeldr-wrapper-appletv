@@ -13,6 +13,12 @@
 
 PPCIDEVICE PciDevice;
 
+#define PciIsValidDevice(bus, slot, func) \
+PciReadWord(bus, slot, func, VENDOR_ID) != 0xFFFF
+
+u8 IrqCounter = 5;
+
+
 /* FUNCTIONS ******************************************************************/
 
 /* Read 32-bit longword from PCI bus. */
@@ -149,7 +155,7 @@ PPCIDEVICE DetectPciIdeController() {
     for (Bus = 0; Bus < 255; Bus++) {
         for (Slot = 0; Slot < 32; Slot++) {
             for (Func = 0; Func < 8; Func++) {
-                if (PciGetVendorId(Bus, Slot, Func) != PCI_INVALID_DEVICE &&
+                if (PciIsValidDevice(Bus, Slot, Func) &&
                     PciGetClassCode(Bus, Slot, Func) == PCI_CLASS_CODE_MASS_STORAGE &&
                     PciGetSubclassCode(Bus, Slot, Func) == PCI_MASS_STORAGE_SUBCLASS_CODE_IDE_CONTROLLER) {
                     debug_printf("PCI: Found IDE controller at %02x:%lx.%lx [%lX:%lX] with Prog IF %02x\n",
@@ -172,8 +178,30 @@ PPCIDEVICE DetectPciIdeController() {
     return PciDevice;
 }
 
-/* Change Prog IF value to work correctly with FreeLoader. */
+void PciAssignIrq(u8 Bus, u8 Slot, u8 Func, u8 Irq) {
+    // don't do this. seriously.
+    u8 UnusedByte0;
+    u8 UnusedByte1;
+    u8 UnusedByte2;
+    u8 InterruptLine;
 
+    u32 IrqOffsetOld, IrqOffsetNew;
+
+    IrqOffsetOld = PciReadLong(Bus, Slot, Func, INTERRUPT_LINE);
+
+    UnusedByte0 = (IrqOffsetOld >> 24) & 0xFF;
+    UnusedByte1 = (IrqOffsetOld >> 16) & 0xFF;
+    UnusedByte2 = (IrqOffsetOld >> 8) & 0xFF;
+    InterruptLine = (IrqOffsetOld) & 0xFF;
+
+    debug_printf("PCI: Assigning IRQ...\n");
+    InterruptLine = Irq;
+
+    IrqOffsetNew = (u32)(UnusedByte0 << 24) | (u32)(UnusedByte1 << 24) | (u32)(UnusedByte2 << 8) | (u32)(InterruptLine);
+    PciWriteLong(Bus, Slot, Func, INTERRUPT_LINE, IrqOffsetNew);
+}
+
+/* Change Prog IF value to work correctly with FreeLoader. */
 void AppleTVFixupIdeController() {
     u32 PciOffsetOld, PciOffsetNew;
     u32 ClassCode, Subclass, ProgIf, RevId;
@@ -208,4 +236,35 @@ void AppleTVFixupIdeController() {
         printf("PCI: FATAL: Unsupported IDE controller!\n");
         fail();
     }
+
+    //PciAssignIrq(0x00, 0x01, 0x0, 1);
+    //PciAssignIrq(0x00, 0x07, 0x0, 1);
+    //PciAssignIrq(0x00, 0x1b, 0x0, 1);
+    //PciAssignIrq(0x00, 0x1c, 0x0, 1);
+    //PciAssignIrq(0x00, 0x1c, 0x1, 1);
+    //PciAssignIrq(0x00, 0x1c, 0x2, 1);
+    //PciAssignIrq(0x00, 0x1c, 0x3, 1);
+    //PciAssignIrq(0x00, 0x1d, 0x0, 1);
+    //PciAssignIrq(0x00, 0x1d, 0x7, 1);
+    //PciAssignIrq(0x00, 0x1f, 0x1, 1);
+    //PciAssignIrq(0x00, 0x1f, 0x3, 1);
+    //PciAssignIrq(0x01, 0x00, 0x0, 1);
+    //PciAssignIrq(0x02, 0x00, 0x0, 1);
+    //PciAssignIrq(0x06, 0x03, 0x0, 1);
+
+    //PciAssignIrq(0x00, 0x02, 0x0, 0);
+    //PciAssignIrq(0x00, 0x03, 0x0, 0);
+    //PciAssignIrq(0x00, 0x04, 0x0, 0);
+    //PciAssignIrq(0x00, 0x05, 0x0, 0);
+    //PciAssignIrq(0x00, 0x07, 0x0, 0);
+    //PciAssignIrq(0x00, 0x1f, 0x0, 0);
+    //PciAssignIrq(0x00, 0x1f, 0x1, 0);
+    //PciAssignIrq(0x00, 0x1f, 0x2, 0);
+
+
+
+
+
+
+
 }

@@ -27,8 +27,8 @@ typedef unsigned long long  UINT64;
 
 typedef unsigned char       u8;
 typedef unsigned short      u16;
-typedef unsigned long       u32;
-typedef unsigned long long  u64;
+typedef unsigned long       __attribute__((__may_alias__)) u32;
+typedef unsigned long long  __attribute__((__may_alias__)) u64;
 typedef char                s8;
 typedef short               s16;
 typedef long                s32;

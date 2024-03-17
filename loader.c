@@ -22,7 +22,7 @@ u32 FreeldrLen = 0;
 #define VERSION_MINOR 0
 #define VERSION_PATCH 2
 
-char DebugPortString[] = "debug=debugport=screen ";
+char ScreenString[] = "debug=debugport=screen ";
 
 /* FUNCTIONS ******************************************************************/
 
@@ -40,7 +40,6 @@ void CreateBootInfo() {
     BootInfo->VideoWidth = (BootArgs->Video.Pitch / 4);
     BootInfo->VideoHeight = BootArgs->Video.Height;
     BootInfo->VideoDepth = BootArgs->Video.Depth;
-
     BootInfo->GlobalSystemTable = BootArgs->EfiSystemTable;
 
     /* Copy bootinfo to proper location */
@@ -94,8 +93,8 @@ void SetupCmdline() {
         ClearScreen(TRUE);
         debug_printf("Booting in Verbose Mode. ");
         /* Add screen debug to command line */
-        memcpy(CmdLine, DebugPortString, sizeof(DebugPortString));
-        CmdLine += sizeof(DebugPortString) - 1;
+        memcpy(CmdLine, ScreenString, sizeof(ScreenString));
+        CmdLine += sizeof(ScreenString) - 1;
     }
     /* Copy the unparsed Mach command line to FreeLoader */
     memcpy(CmdLine, BootArgs->CmdLine, MACH_CMDLINE);
